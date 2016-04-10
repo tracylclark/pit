@@ -152,7 +152,22 @@ function readyToPlay(){
 
 
 //check game win
+function checkForRoundWin(index){
+	if (gameMode==1){
+		var card = hands[index][0];
+		for (var i = 0; i<hands[index].length(); i++){
+			if (hands[index][i]!=card) return false;
+		}
+		return true;
+	}
+}
 
+function checkForGameWin(index){
+	if (player[index].score>=500){ 
+		return true;
+	}
+	return false;
+}
 
 
 //check round win
@@ -200,7 +215,12 @@ io.on("connection", function(socket) {
 	});
 	socket.on("corner", function(corner, player, gameMode)){
 		var round = checkForRoundWin();
-		var game = checkForGameWin();
+		var game = false;
+		if (round){
+			players[player].score += hands[player][0].points;
+			game = checkForGameWin();
+		}
+		
 		//round win && game win 
 		if (round && game){
 			//update db 
@@ -223,3 +243,10 @@ io.on("connection", function(socket) {
 server.listen(80);
 console.log("Server is listening on port 80");
 
+//ToDo:
+//Set up database
+//Set up database queries (search for validity/existence)
+//Client JS to handle the messages it receives (even a framework would be good for now)
+
+//HTML file
+//CSS stylesheet
