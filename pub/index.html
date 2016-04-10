@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Pit</title>
+		<link href="style.css" rel="stylesheet" type="text/css">
+		<script src="/socket.io/socket.io.js" type="text/javascript"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" type="text/javascript"></script>
+		<script src="client.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<h1>Pit</h1>
+
+
+
+		<div id="loginScreen" class="section">
+			<input type="text" name="username" id="username">
+			<input type="text" name="password" id="password">
+			<button type="button" id="loginButton">Login</button>
+			<button type="button" id="createButton">Create Account</button>
+		</div>
+		<div id="userTable">
+			<h2>Users</h2>
+			<p id="userTable"></p>
+		</div>
+
+		<div id="rules" class="section">
+			<h2> Rules </h1>
+			<h3> OBJECT </h3>
+			<p> Be the first player to score a total of 500 points. This usually takes several hands of play. At the sound of the bell, you become a trader, as if you’re at the commodity exchange, trying to “corner” the market on one of the following  ommodities: Wheat, Barley, Coffee, Corn, Sugar, Oats, Soybeans, Oranges. You “corner the market” when you have in your hand all 9 cards of the same commodity. </p>
+			<h3> PLAY </h3>
+			<p> At the start of the game (sound of the bell), begin to trade by taking selecting one to four cards of the same commodity. They will be of a commodity you do NOT wish to corner. Click offer to offer the trade to the other players. Any other player with the same amount of cards to trade may click accept to accept your offer. If a player is offering less cards to trade you may click accept and select the cards you are trading (all must be the same type) for the trade to take place. 
+
+			Continue trading until one player gets 9 cards of the same suit. If you get there first, select the commodity you've cornered from the drop-down menu and hen click corner. Your points scored for that commodity will be added to your otal score and updated. The next hand is then dealt. </p>
+			<h3> WINNING </h3>
+			<p>You win the game by being the first player with at least 500 points. </p>
+		</div>
+	</body>
+</html>
