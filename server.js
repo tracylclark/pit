@@ -198,6 +198,25 @@ io.on("connection", function(socket) {
 		//and so on
 		io.emit("updateGUI", function(msg));
 	});
+	socket.on("corner", function(corner, player, gameMode)){
+		var round = checkForRoundWin();
+		var game = checkForGameWin();
+		//round win && game win 
+		if (round && game){
+			//update db 
+			io.emit("gameWin", function(msg)); //msg is who won
+		}
+		else if (round){
+			//msg is round winner, increment score, change gameMode to redeal
+			dealDeck();
+			lastRoundWinner = player; //should be a string for player name
+			io.emit("roundWin", function(player)); 
+		}
+		else {
+			//no win, just keep playing
+			io.emit("noWin", function(msg)); 
+		}
+	});
 
 });
 
