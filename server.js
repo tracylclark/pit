@@ -11,9 +11,13 @@ var server = http.Server(app);
 var socketIo = require("socket.io");
 var io = socketIo(server);
 var db = database;
-var hands = [];
 var numberOfPlayers;
 var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game
+var ready = 0; //increment on ready message, check for gameReady status
+//congruent arrays to track player data 
+var sockets = [];
+var players = [];
+var hands = [];
 io.on("connect", function(socket) {
 	console.log("socket.io connect made");
 	socket.on("disconnect", function() {
@@ -54,37 +58,37 @@ function createCard(cardName){
 			obj.points = 100;
 		};
 	}
-	elseif(cardName == "sovietBear"){
+	else if(cardName == "sovietBear"){
 		return var obj = {
 			obj.name = "sovietBear";
 			obj.points = 100;
 		};
 	}
-	elseif(cardName == "internetz"){
+	else if(cardName == "internetz"){
 		return var obj = {
 			obj.name = "internetz";
 			obj.points = 100;
 		};
 	}
-	elseif(cardName == "rickRoll"){
+	else if(cardName == "rickRoll"){
 		return var obj = {
 			obj.name = "rickRoll";
 			obj.points = 100;
 		};
 
-	elseif(cardName == "doge"){
+	else if(cardName == "doge"){
 		return var obj = {
 			obj.name = "doge";
 			obj.points = 100;
 		};
 	}
-	elseif(cardName == "technoViking"){
+	else if(cardName == "technoViking"){
 		return var obj = {
 			obj.name = "technoViking";
 			obj.points = 100;
 		};
 	}
-	elseif(cardName == "partyVan"){
+	else if(cardName == "partyVan"){
 		return var obj = {
 			obj.name = "partyVan";
 			obj.points = 100;
@@ -115,24 +119,36 @@ function shuffleDeck(){
 
 //ready player, call shuffleDeck and deal deck
 
-function dealDeck(){
+function dealDeck(){ 
 	if (gameMode == 1) {
-			var deck = shuffleDeck();
-			for(var i = 0; i < numberOfPlayers; i++){
-				for(var j = 0; j < 9; j++){
-					hands[i].push(deck.splice(1,1));
-				}
+		var deck = shuffleDeck();
+		for(var i = 0; i < numberOfPlayers; i++){
+			for(var j = 0; j < 9; j++){
+				hands[i].push(deck.splice(0,1));
 			}
+		}
 	}
-
 }
 
 //sit player
-
-
+//auto-sit players in seats
+//for spectators either don't allow or once all seats are full they can spectate
+function sitPlayer(){
+	if (sockets.length()==8)  {return;} //cannot have more than 8 players
+	sockets.push(socket);
+	players.push(userObj); //once they log in a user object is created and pushed w/ their
+	//socket to the array
+}
 
 // ready game
-
+function readyToPlay(){
+	if (sockets.length()>=3 && ready>(Math.floor(0.5*sockets.length())) return true;
+	return false;
+	//check status, change game mode
+	//if more than half of currently connected people click ready
+	//must be at least 3 people --- return false if its not
+	//cannot be more than 8 players --
+}
 
 
 //check game win
@@ -144,3 +160,47 @@ function dealDeck(){
 
 
 //corner
+
+
+io.on("connection", function(socket) {
+	console.log("Somebody connected to our socket.io server :)");
+
+	socket.on("disconnect", function() { //need to change game mode on disconnect if a player
+		console.log("They probably closed their web browser or went to a different page :(");
+
+		var indexOfUser = allSockets.indexOf(socket);
+		allSockets.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
+		allUsernames.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
+		
+		io.emit("updateUserList", allUsernames);
+	});
+
+	socket.on("login", function(username, password, message) {
+		//query the database 
+		//if message == login && user / pw matches user record allow login : login = true;
+		//else if message == create && user doesn't exist
+			//add to DB and allow login : login = true; 
+		//else return error for invalidity : return login = false;
+		//add to player list (unless too large, then spectator)
+			//emit invalid or emit valid
+
+		io.emit("loginValidation", msg); //msg is a bool, if true it hides false invalid msg
+		//pass the user objects on game update (when events occur)
+	});
+
+	
+	socket.on("updateGUI", function(msg) {
+		//if gameMode == 0
+		//else if GM == 1
+		//...
+		//send player objects
+		//send hands
+		//and so on
+		io.emit("updateGUI", function(msg));
+	});
+
+});
+
+server.listen(80);
+console.log("Server is listening on port 80");
+
