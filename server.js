@@ -1,4 +1,7 @@
-
+var allUsernames = []; //this is everyone connected including spectators
+var allSockets = []; //the socket of everyone connected to the server, including spectators
+//we autosit the first 8 people to join, so we need to add those people to both arrays (allUN & players)
+//and we need to assign to allUN no matter what
 var mongoClient = require("mongodb").MongoClient;
 var ObjectID = require("mongodb").ObjectID;
 var express = require("express");
@@ -134,10 +137,14 @@ function dealDeck(){
 //auto-sit players in seats
 //for spectators either don't allow or once all seats are full they can spectate
 function sitPlayer(){
+	allUsernames.push(userObj); //add to all users yay
+	allSockets.push(socket); 
 	if (sockets.length()==8)  {return;} //cannot have more than 8 players
-	sockets.push(socket);
 	players.push(userObj); //once they log in a user object is created and pushed w/ their
 	//socket to the array
+	sockets.push(socket); //this is only the player sockets, not the spectators
+	
+
 }
 
 // ready game
@@ -163,10 +170,12 @@ function checkForRoundWin(index){
 }
 
 function checkForGameWin(index){
-	if (player[index].score>=500){ 
-		return true;
+	if (gameMode==1){
+		if (player[index].score>=500){ 
+			return true;
+		}
+		return false;
 	}
-	return false;
 }
 
 
@@ -186,6 +195,11 @@ io.on("connection", function(socket) {
 		var indexOfUser = allSockets.indexOf(socket);
 		allSockets.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
 		allUsernames.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
+		if (indexOfUser<8){
+			players.splice(indexOfUser, 1);
+			sockets.splice(indexOfUser, 1);
+			//if someone leaves and game has started will have to reset the entire game
+		}
 		
 		io.emit("updateUserList", allUsernames);
 	});
@@ -203,6 +217,18 @@ io.on("connection", function(socket) {
 		//pass the user objects on game update (when events occur)
 	});
 
+
+	mongoClient.connect("mongodb://localhost:27017", function(err, database) {
+		if (err) throw err;
+		db = database;
+		console.log("We connected to Mongo");
+
+		server.listen(80, function() {console.log("Server is ready");})
+	});
+
+	function loginValidation(db, username, password, callback) {
+		var collection = db.collection("users");
+		
 	
 	socket.on("updateGUI", function(msg) {
 		//if gameMode == 0
