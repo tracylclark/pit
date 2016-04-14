@@ -198,13 +198,20 @@ io.on("connection", function(socket) {
 		if (indexOfUser<8){
 			players.splice(indexOfUser, 1);
 			sockets.splice(indexOfUser, 1);
+			gameMode = 2; //game over bc we don't have enough players
 			//if someone leaves and game has started will have to reset the entire game
 		}
-		
+		//need to send a gameMode update in case person leaving was a player
 		io.emit("updateUserList", allUsernames);
 	});
 
-	socket.on("login", function(username, password, message) {
+	socket.on("login", function(obj) {
+		un = obj.username;
+		pw = obj.password;
+		msg = obj.message;
+		loginValidation(db, un, pw, msg, function(result) {
+			io.emit("loginValidation", result);
+		}
 		//query the database 
 		//if message == login && user / pw matches user record allow login : login = true;
 		//else if message == create && user doesn't exist
@@ -213,7 +220,7 @@ io.on("connection", function(socket) {
 		//add to player list (unless too large, then spectator)
 			//emit invalid or emit valid
 
-		io.emit("loginValidation", msg); //msg is a bool, if true it hides false invalid msg
+		// io.emit("loginValidation", msg); //msg is a bool, if true it hides false invalid msg
 		//pass the user objects on game update (when events occur)
 	});
 
@@ -226,17 +233,18 @@ io.on("connection", function(socket) {
 		server.listen(80, function() {console.log("Server is ready");})
 	});
 
-	function loginValidation(db, username, password, callback) {
+	function loginValidation(db, username, password, msg, callback) {
 		var collection = db.collection("users");
-		
-	
+			
+	}
 	socket.on("updateGUI", function(msg) {
-		//if gameMode == 0
-		//else if GM == 1
+		//if gameMode == 0 --when logging on, before they click ready to start
+		//else if GM == 1 //game in player
 		//...
 		//send player objects
 		//send hands
-		//and so on
+		//and so on 
+		//else if GM==2 //game over (either someone won or a player left)
 		io.emit("updateGUI", function(msg));
 	});
 	socket.on("corner", function(corner, player, gameMode)){
