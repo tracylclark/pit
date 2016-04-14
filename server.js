@@ -235,9 +235,25 @@ io.on("connection", function(socket) {
 
 	function loginValidation(db, username, password, msg, callback) {
 		var collection = db.collection("users");
-			
+		if (msg=="create"){ 
+		//we want to make sure the username doesn't exist before attempting to add
+			collection.insertUser(username, function(err, result) {
+				if (err != null) {
+					console.log("ERR on attempting to insert()..." + err);
+					callback(null); //"returning" null means we are telling the caller it didn't work.
+				}
+				else {
+					console.log("insert() succeeded.  # of documents added: " + result.result.n);
+					callback(result); //here we indicate success by returning the result object.
+				}
+			});
+		}
+		else if (msg=="login"){
+
+		}
+		
 	}
-	socket.on("updateGUI", function(msg) {
+	socket.on("updateGUI", function(msg) { //this is where we send the game state object
 		//if gameMode == 0 --when logging on, before they click ready to start
 		//else if GM == 1 //game in player
 		//...
