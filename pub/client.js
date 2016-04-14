@@ -4,20 +4,19 @@ function hideLogin(obj){
 	socket.emit("login", obj);
 	socket.on("loginValidation",function (msg){
 		return msg;
-	}
+	});
 }
 
 function login(){
 	var obj = {
-		obj.username = $("#username").val();
-		obj.password = $("#password").val();
-		obj.message = $("#username").val();
-	}
-	$("#loginButton").click(function()
+		username: $("#username").val(),
+		password: $("#password").val()
+	};
+	$("#loginButton").click(function(){
 			obj.message = "login";
 		if(hideLogin(obj)){
 			$("#loginScreen").hide();
-		});
+		}});
 	$("#createButton").click(function(){
 		obj.message = "create";
 		if(hideLogin(obj)){
@@ -26,8 +25,9 @@ function login(){
 	});
 }
 
-function startUp(){
 
+function startUp(){
+	login();
 }
 
-$(startUp);
+$(startUp());
