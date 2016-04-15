@@ -12,4 +12,7 @@ TO Finish:
     game win
       update database
       track won last
+
+Done:
   setting up db/collection on euclid
+
