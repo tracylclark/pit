@@ -1,0 +1,14 @@
+TO DO:
+  data sanitation on login and password
+  game win handler on client.js
+  set game mode and variables associated
+  track validity and existence
+  gui implementation of everything but login
+  mongodb on euclid for database
+  create database and collection on euclid
+  
+TO Finish:
+  server
+    game win
+      update database
+      track won last
