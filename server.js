@@ -273,7 +273,7 @@ io.on("connection", function(socket) {
 		
 		//round win && game win 
 		if (round && game){
-			//update db 
+			//update db : everyone who isn't the winner gains a loss, winner gains a win
 			io.emit("gameWin", function(msg)); //msg is who won
 		}
 		else if (round){
