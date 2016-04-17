@@ -2,6 +2,8 @@ socket = io();
 var user;
 var hand = [];
 var trades;
+var numOfPlayers;
+var playerNames = [];
 trades.cards = [];
 function escapeHTML(theString) {
 	return theString
@@ -34,6 +36,7 @@ function startUp(){
 		//updateGUI();
 	});
 	socket.on("updateGameState", function(obj){
+		numOfPlayers = obj.players.length();
 		updateGameState(obj);
 	})
 
@@ -186,6 +189,15 @@ function startUp(){
 			//update GUI with trade objects
 		}
 	}
+	for(var k = 0; k < numOfPlayers; k++){
+		$(".acceptTrade "+ k ).click(function(){
+			$(button).appendTo($('acceptButton') + k);
+			$('<input></input>').attr({'type': 'button'}).val("button").click(function(){
+					trades.player2 = playerNames[k];
+					socket.emit("acceptTrade", trades)
+			}).appendTo($('acceptButton' + k));
+		});
+	}
 	//when we build the scoreboard then we just id each row appended by the users name
 }
 
@@ -221,6 +233,7 @@ function updateGUI(obj){
 		for(var j =0; j < 6; j++){
 			if(j == 0){
 				cell.innerHTML = obj.players[i].user;
+				playerNames[i] = obj.players[i].user;
 			}
 			else if(j == 1){
 				cell.innerHTML = obj.players[i].score;
@@ -233,12 +246,17 @@ function updateGUI(obj){
 			}
 			else if(j == 4){
 				cell.innerHTML = "tradeButton";
+				cell.className = "acceptButton" + i;
 			}
 			else if(j == 5){
 				cell.innerHTML = obj.trades[i].length();
 			}
 		}
 		$("#userTable").appendChild(row);
+		$(".acceptButton" + i).visibliity = "hidden";
+		if(obj.trades[i] != null){
+			$(".acceptButton" + i).visibliity = "visible";
+		}
 	}
 }
 
