@@ -1,5 +1,5 @@
 TO DO:
-  data sanitation on login and password
+
   game win handler on client.js
   set game mode and variables associated
   track validity and existence
@@ -15,4 +15,4 @@ TO Finish:
 
 Done:
   setting up db/collection on euclid
-
+  data sanitation on login and password
