@@ -47,7 +47,7 @@ function createDeck(){
 	var suits = chooseDeck();
 	for(var i = 0; i < numberOfPlayers; i++){
 		for(var j = 0; j < 9; j++){
-			deck.push(createCard(suits[i]);
+			deck.push(createCard(suits[i]));
 		}
 	}
 	return deck;
@@ -56,51 +56,51 @@ function createDeck(){
 //"nyanCat","sovietBear", "internetz", "rickRoll", "doge", "technoViking", "partyVan", "wat"
 function createCard(cardName){
 	if(cardName == "nyanCat"){
-		return var obj = {
-			obj.name = "nyanCat";
-			obj.points = 100;
+		return obj = {
+			name : "nyanCat",
+			points : 100
 		};
 	}
 	else if(cardName == "sovietBear"){
-		return var obj = {
-			obj.name = "sovietBear";
-			obj.points = 100;
+		return obj = {
+			name : "sovietBear",
+			points : 100
 		};
 	}
 	else if(cardName == "internetz"){
-		return var obj = {
-			obj.name = "internetz";
-			obj.points = 100;
+		return obj = {
+			name : "internetz",
+			points:  100
 		};
 	}
 	else if(cardName == "rickRoll"){
-		return var obj = {
-			obj.name = "rickRoll";
-			obj.points = 100;
+		return obj = {
+			name : "rickRoll",
+			points : 100
 		};
-
+	}
 	else if(cardName == "doge"){
-		return var obj = {
-			obj.name = "doge";
-			obj.points = 100;
+		return obj = {
+			name : "doge",
+			points : 100
 		};
 	}
 	else if(cardName == "technoViking"){
-		return var obj = {
-			obj.name = "technoViking";
-			obj.points = 100;
+		return obj = {
+			name : "technoViking",
+			points : 100
 		};
 	}
 	else if(cardName == "partyVan"){
-		return var obj = {
-			obj.name = "partyVan";
-			obj.points = 100;
+		return obj = {
+			name : "partyVan",
+			points : 100
 		};
 	}
 	else{//(cardName == "wat")
-		return var obj = {
-			obj.name = "wat";
-			obj.points = 100;
+		return obj = {
+			name : "wat",
+			points : 100
 		};
 	}
 
@@ -149,7 +149,7 @@ function sitPlayer(){
 
 // ready game
 function readyToPlay(){
-	if (sockets.length()>=3 && ready>(Math.floor(0.5*sockets.length())) return true;
+	if (sockets.length()>=3 && ready>(Math.floor(0.5*sockets.length()))) return true;
 	return false;
 	//check status, change game mode
 	//if more than half of currently connected people click ready
@@ -252,19 +252,19 @@ io.on("connection", function(socket) {
 	// socket.on("updateGUI", function(msg) { //this is where we send the game state object
 	// 	io.emit("updateGUI", updateGUI());
 	// });
-	socket.on("trade", msg){
+	socket.on("trade", function(msg){
 		var valid = validTrade(msg.player1, msg.cards);
-		io.emit("validTrade", function(valid));
+		io.emit("validTrade", valid);
 		updateGameState();
-	}
-	socket.on("acceptTrade", msg){
+	});
+	socket.on("acceptTrade", function(msg){
 		var valid = validTrade(msg.player2, msg.cards);
 		if (valid){
 			acceptTrade(msg.player1, msg.player2, msg.cards); //cards here belong to player 2
 		}
 		updateGameState();
-	}
-	socket.on("corner", function(corner, player, gameMode)){
+	});
+	socket.on("corner", function(corner, player, gameMode){
 		var round = checkForRoundWin();
 		var game = false;
 		if (round){
@@ -275,17 +275,17 @@ io.on("connection", function(socket) {
 		//round win && game win
 		if (round && game){
 			//update db : everyone who isn't the winner gains a loss, winner gains a win
-			io.emit("gameWin", function(msg)); //msg is who won
+			io.emit("gameWin", msg); //msg is who won
 		}
 		else if (round){
 			//msg is round winner, increment score, change gameMode to redeal
 			dealDeck();
 			lastRoundWinner = player; //should be a string for player name
-			io.emit("roundWin", function(player));
+			io.emit("roundWin", player);
 		}
 		else {
 			//no win, just keep playing
-			io.emit("noWin", function(msg));
+			io.emit("noWin", msg);
 		}
 		updateGameState();
 	});
@@ -333,9 +333,9 @@ function updateGameState(){
 	obj.trades = trades; //if there are trades available needs to be shown
 	obj.allUsernames = allUsernames;
 	obj.gameMode = gameMode;
-	for(int i = 0; i<numberOfPlayers; i++){
+	for(var i = 0; i<numberOfPlayers; i++){
 		obj.hand = hands[i];
-		io.emit("updateGameState", function(obj));
+		io.emit("updateGameState", obj);
 	}
 	//for now we ignore spectators
 
