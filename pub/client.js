@@ -26,12 +26,12 @@ function login(){
 function startUp(){
 	socket.on("gameWin", function(msg){
 		//update the GUI, display a msg with who won, etc
-		updateGUI();
+		//updateGUI();
 
 	});
 	socket.on("roundWin", function(msg){
 		//increment game scores, create a round won by message, etc
-		updateGUI();
+		//updateGUI();
 	});
 
 	$("#loginButton").click(function(){
@@ -167,7 +167,7 @@ function startUp(){
 		}
 	});
 	$("#trade").click(function()){
-		trades.user = user;
+		trades.player1 = user;
 		socket.emit("trade", trades);
 		trades.cards = [];
 		$(".card").forEach(function(){
@@ -186,9 +186,61 @@ function startUp(){
 	//when we build the scoreboard then we just id each row appended by the users name
 }
 
+function updateGUI(obj){
+	$("#userTable").children.remove();
+	var row = document.createElement("div");
+	row.className = "row headerRow";
+	for(var i = 0; i < 6; i++){
+		var cell = document.createElement("div");
+		cell.className = "cell";
+		if(i == 0){
+			cell.innerHTML = "user";
+		}
+		else if(i == 1){
+			cell.innerHTML = "score";
+		}
+		else if(i == 2){
+			cell.innerHTML = "wins";
+		}
+		else if(i == 3){
+			cell.innerHTML = "losses";
+		}
+		else if(i == 4){
+			cell.innerHTML = "acceptTrade";
+		}
+		else if(i == 5){
+			cell.innerHTML = "numCardsTrade";
+		}
+	}
+	$("#userTable").appendChild(row);
+	for(i = 0; i < obj.players.length(); i++){
+		row.className = obj.players[i].user;
+		for(var j =0; j < 6; j++){
+			if(j == 0){
+				cell.innerHTML = obj.players[i].user;
+			}
+			else if(j == 1){
+				cell.innerHTML = obj.players[i].score;
+			}
+			else if(j == 2){
+				cell.innerHTML = obj.players[i].wins;
+			}
+			else if(j == 3){
+				cell.innerHTML = obj.players[i].losses;
+			}
+			else if(j == 4){
+				cell.innerHTML = "tradeButton";
+			}
+			else if(j == 5){
+				cell.innerHTML = obj.trades[i].length();
+			}
+		}
+		$("#userTable").appendChild(row);
+	}
+}
+
 function highlightCard(cell){
 	$(cell).css("background-color", "rgba(255,180,0,.5)");
-}
 }
 
 function unhighlightCard(cell){
