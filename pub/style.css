@@ -1,1 +1,24 @@
 /*pit*/
+#loginScreen{
+	margin-left: 70%;
+	margin-right: 0%;
+}
+
+.sideFloat {
+	float: left;
+	width: 28%;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	font-weight: bold;	
+	position: absolute;
+
+}
+#rules{
+	clear: left;
+	text-align: justify;
+	border: 3px solid black;
+	padding: 3px;
+	font-size: .85em;
+
+}
