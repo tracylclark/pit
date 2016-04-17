@@ -170,6 +170,9 @@ function startUp(){
 		trades.user = user;
 		socket.emit("trade", trades);
 		trades.cards = [];
+		$(".card").forEach(function(){
+			unhighlightCard(".card");
+		});
 	}
 	$("#corner".click(function())){
 		socket.emit("corner");
