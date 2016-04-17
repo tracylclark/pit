@@ -31,3 +31,6 @@
 #acceptTrade{
 	visibility: hidden;
 }
+.card{
+	padding: 10px;
+}
