@@ -17,7 +17,7 @@ var db = database;
 var numberOfPlayers;
 var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game
 var ready = 0; //increment on ready message, check for gameReady status
-//congruent arrays to track player data 
+//congruent arrays to track player data
 var sockets = [];
 var players = [];
 var hands = [];
@@ -122,7 +122,7 @@ function shuffleDeck(){
 
 //ready player, call shuffleDeck and deal deck
 
-function dealDeck(){ 
+function dealDeck(){
 	if (gameMode == 1) {
 		var deck = shuffleDeck();
 		for(var i = 0; i < numberOfPlayers; i++){
@@ -138,12 +138,12 @@ function dealDeck(){
 //for spectators either don't allow or once all seats are full they can spectate
 function sitPlayer(){
 	allUsernames.push(userObj); //add to all users yay
-	allSockets.push(socket); 
+	allSockets.push(socket);
 	if (sockets.length()==8)  {return;} //cannot have more than 8 players
 	players.push(userObj); //once they log in a user object is created and pushed w/ their
 	//socket to the array
 	sockets.push(socket); //this is only the player sockets, not the spectators
-	
+
 
 }
 
@@ -158,7 +158,7 @@ function readyToPlay(){
 }
 
 
-//check game win
+
 function checkForRoundWin(index){
 	if (gameMode==1){
 		var card = hands[index][0];
@@ -171,20 +171,12 @@ function checkForRoundWin(index){
 
 function checkForGameWin(index){
 	if (gameMode==1){
-		if (player[index].score>=500){ 
+		if (player[index].score>=500){
 			return true;
 		}
 		return false;
 	}
 }
-
-
-//check round win
-
-
-
-//corner
-
 
 io.on("connection", function(socket) {
 	console.log("Somebody connected to our socket.io server :)");
@@ -209,13 +201,14 @@ io.on("connection", function(socket) {
 		un = obj.username;
 		pw = obj.password;
 		msg = obj.message;
-		loginValidation(db, un, pw, msg, function(result) {
-			io.emit("loginValidation", result);
-		}
-		//query the database 
+		var result = loginValidation(db, un, pw, msg, socket);
+		io.emit("loginValidation", result);//{
+			//io.emit("loginValidation", result);
+	//	}
+		//query the database
 		//if message == login && user / pw matches user record allow login : login = true;
 		//else if message == create && user doesn't exist
-			//add to DB and allow login : login = true; 
+			//add to DB and allow login : login = true;
 		//else return error for invalidity : return login = false;
 		//add to player list (unless too large, then spectator)
 			//emit invalid or emit valid
@@ -233,25 +226,28 @@ io.on("connection", function(socket) {
 		server.listen(80, function() {console.log("Server is ready");})
 	});
 
-	function loginValidation(db, username, password, msg, callback) {
+	function loginValidation(db, userName, passWord, msg, socket) {
 		var collection = db.collection("users");
-		if (msg=="create"){ 
+		if (msg=="create"){
+			if(collection.find({ userName : { $exists : true} })){
+				return false;
+			}
 		//we want to make sure the username doesn't exist before attempting to add
-			collection.insertUser(username, function(err, result) {
-				if (err != null) {
-					console.log("ERR on attempting to insert()..." + err);
-					callback(null); //"returning" null means we are telling the caller it didn't work.
-				}
-				else {
-					console.log("insert() succeeded.  # of documents added: " + result.result.n);
-					callback(result); //here we indicate success by returning the result object.
-				}
-			});
+			collection.insert({username : userName, password: passWord, wins: 0, losses: 0});
+			players[socket] = {username : userName, score : 0, wins : 0, losses : 0};
+			return true;
 		}
 		else if (msg=="login"){
+			if(collection.find({ userName : { $exists : false} })){
+				return false;
+			}
+			 //need help parsing username
 
+			 //this is hardcoded and needs to be removed
+			 players[socket] = {username : userName, score : 0, wins : 0, losses : 0};
+			 return true;
 		}
-		
+
 	}
 	socket.on("updateGUI", function(msg) { //this is where we send the game state object
 		//if gameMode == 0 --when logging on, before they click ready to start
@@ -259,7 +255,7 @@ io.on("connection", function(socket) {
 		//...
 		//send player objects
 		//send hands
-		//and so on 
+		//and so on
 		//else if GM==2 //game over (either someone won or a player left)
 		io.emit("updateGUI", function(msg));
 	});
@@ -270,8 +266,8 @@ io.on("connection", function(socket) {
 			players[player].score += hands[player][0].points;
 			game = checkForGameWin();
 		}
-		
-		//round win && game win 
+
+		//round win && game win
 		if (round && game){
 			//update db : everyone who isn't the winner gains a loss, winner gains a win
 			io.emit("gameWin", function(msg)); //msg is who won
@@ -280,11 +276,11 @@ io.on("connection", function(socket) {
 			//msg is round winner, increment score, change gameMode to redeal
 			dealDeck();
 			lastRoundWinner = player; //should be a string for player name
-			io.emit("roundWin", function(player)); 
+			io.emit("roundWin", function(player));
 		}
 		else {
 			//no win, just keep playing
-			io.emit("noWin", function(msg)); 
+			io.emit("noWin", function(msg));
 		}
 	});
 
