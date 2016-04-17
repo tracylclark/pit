@@ -249,22 +249,21 @@ io.on("connection", function(socket) {
 		}
 
 	}
-	socket.on("updateGUI", function(msg) { //this is where we send the game state object
-		//if gameMode == 0 --when logging on, before they click ready to start
-		//else if GM == 1 //game in player
-		//...
-		//send player objects
-		for (int i = 0; i<numberOfPlayers; i++){
-			Obj.hand = hands[i];
+	// socket.on("updateGUI", function(msg) { //this is where we send the game state object
+	// 	io.emit("updateGUI", updateGUI());
+	// });
+	socket.on("trade", msg){
+		var valid = validTrade(msg.player1, msg.cards);
+		io.emit("validTrade", function(valid));
+		updateGameState();
+	}
+	socket.on("acceptTrade", msg){
+		var valid = validTrade(msg.player2, msg.cards);
+		if (valid){
+			acceptTrade(msg.player1, msg.player2, msg.cards); //cards here belong to player 2
 		}
-		Obj.players = players;
-		//also need to send an array of numbers which is cards to trade
-		Obj.trades = ;
-		//send hands
-		//and so on
-		//else if GM==2 //game over (either someone won or a player left)
-		io.emit("updateGUI", function(Obj));
-	});
+		updateGameState();
+	}
 	socket.on("corner", function(corner, player, gameMode)){
 		var round = checkForRoundWin();
 		var game = false;
@@ -288,10 +287,59 @@ io.on("connection", function(socket) {
 			//no win, just keep playing
 			io.emit("noWin", function(msg));
 		}
+		updateGameState();
 	});
 
 });
+function validTrade(player, cards){
+	var card=hands[whichPlayer][cards[0]].suits;
+	if (cards.length()>4) return false; //can't trade more than 4 cards per rules
+	var whichPlayer;
+	for (var i = 0; i<numberOfPlayers; i++){ //get the correct player
+		if(players[i]==player) whichPlayer=i;
+	}
+	for (var i = 0; i<cards.length(); i++){
+		if (hands[whichPlayer][cards[i]].suits != card) return false; //validate all cards are the same
+	}
+	trades[whichPlayer]=cards;
+	return true;
+}
 
+function acceptTrade (offeredPlayer, acceptedPlayer, acceptedCards){
+	//if players are in accept trade then BOTH of them have been through validTrade()
+	var offeredPlayerIndex;
+	var acceptedPlayerIndex;
+	for (var i = 0; i<numberOfPlayers; i++){ //get the correct player
+		if(players[i]==offeredPlayer) offeredPlayerIndex=i;
+		if(players[i]==acceptedPlayer) acceptedPlayerIndex=i;
+	}
+	var offeredCards = trades[offeredPlayerIndex].cards;
+	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
+	trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
+}
+function trade(index1, cards1, index2, cards2){
+	if (cards1.length()<cards2.length()) var length = cards1.length();
+	else var length = cards2.length();
+	for(var i = 0; i<cards1.length(); i++){
+		var tmp = hands[index1][cards[i]]; //store player 1 card
+		hands[index1][cards[i]]=hands[index2][cards[i]]; //make player 1 card = player 2
+		hands[index2][cards[i]] = tmp; //make player 2 = stored player 1 original card
+	}
+}
+
+function updateGameState(){
+	var obj = {};
+	obj.players = players; //this is the player objects
+	obj.trades = trades; //if there are trades available needs to be shown
+	obj.allUsernames = allUsernames;
+	obj.gameMode = gameMode;
+	for(int i = 0; i<numberOfPlayers; i++){
+		obj.hand = hands[i];
+		io.emit("updateGameState", function(obj));
+	}
+	//for now we ignore spectators
+
+}
 server.listen(80);
 console.log("Server is listening on port 80");
 
