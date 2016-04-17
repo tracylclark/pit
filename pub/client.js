@@ -65,7 +65,13 @@ function startUp(){
 	$("#corner".click(function())){
 		socket.emit("corner");
 	}
-
+	socket.on("tradeValid", function(msg)){
+		if(msg.valid){ //if it was a valid trade offer
+			numberOfCards = msg.numberOfCards;
+			//update GUI with trade objects
+		}
+	}
+	//when we build the scoreboard then we just id each row appended by the users name
 }
 
 $(startUp());

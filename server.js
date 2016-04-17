@@ -29,14 +29,14 @@ io.on("connect", function(socket) {
 });
 
 var collection = db.collection("users");
-
+var trades = [];
 //choose deck, populate deck, randomize, deal;
 
 function chooseDeck(){
 	var suits = ["nyanCat","sovietBear", "internetz", "rickRoll", "doge", "technoViking", "partyVan", "wat"];
 	for(var i = 0; i < numberOfPlayers; i++){
 		var cardChooser = Math.floor(Math.random()*suits.length());
-		deck[i] = suits[chardChooser];
+		deck[i] = suits[cardChooser];
 		suits.splice(cardChooser, 1);
 	}
 	return suits;
