@@ -33,6 +33,9 @@ function startUp(){
 		//increment game scores, create a round won by message, etc
 		//updateGUI();
 	});
+	socket.on("updateGameState", function(obj){
+		updateGameState(obj);
+	})
 
 	$("#loginButton").click(function(){
 		user = $("#username").val();
