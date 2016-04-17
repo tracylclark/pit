@@ -8,12 +8,12 @@ var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static("pub"));
 var http = require("http");
 var server = http.Server(app);
 var socketIo = require("socket.io");
 var io = socketIo(server);
-var db = database;
+app.use(express.static("pub"));
+var db;
 var numberOfPlayers;
 var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game
 var ready = 0; //increment on ready message, check for gameReady status
@@ -28,7 +28,7 @@ io.on("connect", function(socket) {
 	});
 });
 
-var collection = db.collection("users");
+var collection;
 var trades = [];
 //choose deck, populate deck, randomize, deal;
 
@@ -217,15 +217,6 @@ io.on("connection", function(socket) {
 		//pass the user objects on game update (when events occur)
 	});
 
-
-	mongoClient.connect("mongodb://localhost:27017", function(err, database) {
-		if (err) throw err;
-		db = database;
-		console.log("We connected to Mongo");
-
-		server.listen(80, function() {console.log("Server is ready");})
-	});
-
 	function loginValidation(db, userName, passWord, msg, socket) {
 		var collection = db.collection("users");
 		if (msg=="create"){
@@ -340,8 +331,16 @@ function updateGameState(){
 	//for now we ignore spectators
 
 }
-server.listen(80);
-console.log("Server is listening on port 80");
+mongoClient.connect("mongodb://euclid.nmu.edu:27017", function(err, database) {
+	if (err) throw err;
+	db = database;
+	collection = db.collection("users");
+	console.log("We connected to Mongo");
+
+	server.listen(80, function() {console.log("Server is ready");})
+});
+// server.listen(80);
+// console.log("Server is listening on port 80");
 
 //ToDo:
 //Set up database
