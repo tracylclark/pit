@@ -20,10 +20,6 @@ function login(){
 
 
 function startUp(){
-	socket.emit("login", obj);
-	socket.on("loginValidation",function (msg){
-		return msg;
-	});
 	socket.on("gameWin", function(msg){
 		//update the GUI, display a msg with who won, etc
 		updateGUI();
@@ -35,23 +31,41 @@ function startUp(){
 	});
 	
 	$("#loginButton").click(function(){
-			obj.message = "login";
-		if(hideLogin(obj)){ //this should only happen on a valid login
-			$("#loginScreen").hide();
+		var obj = {
+			username: $("#username").val(),
+			password: $("#password").val()
+		};
+		obj.username = escapeHTML(obj.username); //sanitize the input username before sending it to the server
+		obj.password = escapeHTML(obj.password); //sanitize the input password before sending it to the server
+		obj.message = "login";
+		socket.emit("login", obj);
 		}});
 	$("#createButton").click(function(){
+		var obj = {
+			username: $("#username").val(),
+			password: $("#password").val()
+		};
+		obj.username = escapeHTML(obj.username); //sanitize the input username before sending it to the server
+		obj.password = escapeHTML(obj.password); //sanitize the input password before sending it to the server
 		obj.message = "create";
-		if(hideLogin(obj)){
-			$("#loginScreen").hide();
+		socket.emit("login", obj);
+	});
+	socket.on("loginValidation", function(msg){
+		if(msg){ //this should only happen on a valid login
+			$("#loginScreen").style.visibility = "hidden";
+			$("#trade").style.visibility = "visible";
+			$("#corner").style.visibility = "visible";
 		}
 	});
-	var obj = {
-		username: $("#username").val(),
-		password: $("#password").val()
-	};
-	obj.username = escapeHTML(obj.username); //sanitize the input username before sending it to the server
-	obj. password = escapeHTML(obj.password); //sanitize the input password before sending it to the server
-	// login();
+	//need to create an array of card objects that they want to trade as a global, then the click button will
+	//send that to the server
+	$("#trade").click(function()){
+		socket.emit("trade", trades);
+	}
+	$("#corner".click(function())){
+		socket.emit("corner");
+	}
+
 }
 
 $(startUp());

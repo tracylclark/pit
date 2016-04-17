@@ -254,10 +254,16 @@ io.on("connection", function(socket) {
 		//else if GM == 1 //game in player
 		//...
 		//send player objects
+		for (int i = 0; i<numberOfPlayers; i++){
+			Obj.hand = hands[i];
+		}
+		Obj.players = players;
+		//also need to send an array of numbers which is cards to trade
+		Obj.trades = ;
 		//send hands
 		//and so on
 		//else if GM==2 //game over (either someone won or a player left)
-		io.emit("updateGUI", function(msg));
+		io.emit("updateGUI", function(Obj));
 	});
 	socket.on("corner", function(corner, player, gameMode)){
 		var round = checkForRoundWin();

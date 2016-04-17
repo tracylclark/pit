@@ -22,3 +22,12 @@
 	font-size: .85em;
 
 }
+#trade{
+	visibility: hidden;
+}
+#corner{
+	visibility: hidden;
+}
+#acceptTrade{
+	visibility: hidden;
+}

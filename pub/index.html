@@ -13,10 +13,16 @@
 		<h1 id="gameName"></h1>
 
 
-		<div id="userTable">
-			<h2 ></h2>
-			<p id="userTable"></p>
-		</div>
+		<div class="table" id="userTable">
+			<div class="row" id="userHeaderRow">
+				<div class="cell" id="user"></div>
+				<div class="cell" id="score"></div>
+				<div class="cell" id="win"></div>
+				<div class="cell" id="loss"></div>
+				<div class="cell" id="tradeAvailable"><button type="button" id="acceptTrade">Accept Trade</button></div>
+				<div class="cell" id="numCardsToTrade"></div>
+			</div>
+		</div> 
 
 		<div id="rules" class="sideFloat">
 			<h2> Pit Rules </h1>
@@ -35,5 +41,20 @@
 			<button type="button" id="loginButton">Login</button>
 			<button type="button" id="createButton">Create Account</button>
 		</div>
+		<button type = "button" id="corner">Corner</button>
+		<div class="table">
+			<div class="row">
+				<div class="cell" id="cell0"> </div>
+				<div class="cell" id="cell1"> </div>
+				<div class="cell" id="cell2"> </div>
+				<div class="cell" id="cell3"> </div>
+				<div class="cell" id="cell4"> </div>
+				<div class="cell" id="cell5"> </div>
+				<div class="cell" id="cell6"> </div>
+				<div class="cell" id="cell7"> </div>
+				<div class="cell" id="cell8"> </div>
+			</div>
+		</div>
+		<button type="button" id="trade">Trade</button>
 	</body>
 </html>

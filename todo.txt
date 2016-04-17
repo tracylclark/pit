@@ -6,6 +6,7 @@ TO DO:
   gui implementation of everything but login
   mongodb on euclid for database
   create database and collection on euclid
+  trade on server and client side
   
 TO Finish:
   server
