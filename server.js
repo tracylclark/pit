@@ -206,16 +206,23 @@ io.on("connection", function(socket) {
 		updateGameState();
 	});
 
-	socket.on("login", function(obj) {
+	socket.on("login", function(obj) { 
 		un = obj.username;
 		pw = obj.password;
 		msg = obj.message;
 		var result = loginValidation(db, un, pw, msg, socket);
-		io.emit("loginValidation", result);
+		loginValidation(db, un, pw, msg, socket, function(result){
+			if (result != null && msg=="login"){
+
+			} //then we log them in
+			else if (result == null && msg=="create"){
+
+				io.emit("loginValidation", .... true?
+			} //then we create
+			else io.emit("loginValidation", false);
+		});
+
 		updateGameState();
-		//{
-			//io.emit("loginValidation", result);
-	//	}
 		//query the database
 		//if message == login && user / pw matches user record allow login : login = true;
 		//else if message == create && user doesn't exist
@@ -227,29 +234,82 @@ io.on("connection", function(socket) {
 		// io.emit("loginValidation", msg); //msg is a bool, if true it hides false invalid msg
 		//pass the user objects on game update (when events occur)
 	});
+	socket.on("login", function(whichBookFromClient) {
+		//NOTE: It may be advisable to check any data that comes from the client!!!!!
+		//(not done yet)
+		insertBook(db, whichBookFromClient, function(result) {
+			if (result != null) {
+				updateClientGUI();
+			}
+		});
+	});
 
-	function loginValidation(db, userName, passWord, msg, socket) {
+	function loginValidation(db, userName, passWord, msg, socket, callback) {
 		var collection = db.collection("users");
-		if (msg=="create"){
-			if(collection.find({ userName : { $exists : true} })){
-				return false;
+	//Syntax for a find is a little different, because we are gettng a Cursor back as a return value.
+	//We are telling the Cursor to convert to an array.
+		collection.find({username: userName}).toArray(function(err, docs) {
+			if (err != null) {
+				console.log("ERR on attempting to find..." + err);
+				callback(null);
 			}
-		//we want to make sure the username doesn't exist before attempting to add
-			collection.insert({username : userName, password: passWord, wins: 0, losses: 0});
-			players[socket] = {username : userName, score : 0, wins : 0, losses : 0};
-			return true;
-		}
-		else if (msg=="login"){
-			if(collection.find({ userName : { $exists : false} })){
-				return false;
+			else {
+				callback(docs);
 			}
-			 //need help parsing username
-
-			 //this is hardcoded and needs to be removed
-			 players[socket] = {username : userName, score : 0, wins : 0, losses : 0};
-			 return true;
+		});
+	}
+	//if null and msg==create createUser
+	function createUser(db, userName, passWord, socket, callback){
+		var collection = db.collection("users");
+		collection.insert({username : userName, password: passWord, wins: 0, losses: 0});
+		players[getUserIndex(socket)]={username:userName, score:0, wins:0, losses: 0};
+	}
+	function getUserIndex(socket){
+		for(var i = 0; i<allSocket.length(); i++){
+			if (sockets[i]==socket) return i;
 		}
+	}
+	function loginUser(db, userName, passWord, socket, callback){
+		var collection = db.collection("users");
+		if(collection.find({username: userName, password: passWord}).toArray(function(err, docs){
+			if(err !=null){
+				console.log("Error on login trying to find " + err);
+				callback(null);
+			}
+			else{
+				callback(docs);
+			}
+		});
+	}
+	function updateScores(db, callback){ //to get looked at
+		var collection = db.collection("users");
+		for (var i = 0; i<players.length(); i++){
+			if (players[i].score>=500) {
+				collection.updateMany({username: players[i].username, wins: players[i].wins }, function(err, result) {
+					if (err != null) {
+						console.log("ERR on attempting to update..." + err);
+						callback(null); //"returning" null means we are telling the caller it didn't work.
+					}
+					else {
+						console.log("update() succeeded.  # of documents modified: " + result.result.n);
+						callback(result); //here we indicate success by returning the result object.
+					}
+				});
 
+			}
+			else{ //increment losses
+				collection.updateMany({username: players[i].username, losses: players[i].losses }, function(err, result) {
+					if (err != null) {
+						console.log("ERR on attempting to update..." + err);
+						callback(null); //"returning" null means we are telling the caller it didn't work.
+					}
+					else {
+						console.log("update() succeeded.  # of documents modified: " + result.result.n);
+						callback(result); //here we indicate success by returning the result object.
+					}
+				});
+			}	
+		}
 	}
 
 	socket.on("trade", function(msg){
@@ -314,6 +374,9 @@ function acceptTrade (offeredPlayer, acceptedPlayer, acceptedCards){
 		if(players[i]==acceptedPlayer) acceptedPlayerIndex=i;
 	}
 	var offeredCards = trades[offeredPlayerIndex].cards;
+	if(offeredCards.length() <= acceptCards.length()); //if a person accepts an offer they have to have equal or more cards than the offer
+	//you can choose to trade less you can't make someone else do it
+
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
 	trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
 }
@@ -340,7 +403,7 @@ function updateGameState(){
 	//for now we ignore spectators
 
 }
-mongoClient.connect("mongodb://euclid.nmu.edu:27017", function(err, database) {
+mongoClient.connect("mongodb://localhost:27017", function(err, database) {
 	if (err) throw err;
 	db = database;
 	collection = db.collection("users");
@@ -348,6 +411,12 @@ mongoClient.connect("mongodb://euclid.nmu.edu:27017", function(err, database) {
 
 	server.listen(80, function() {console.log("Server is ready");})
 });
+
+
+
+
+
+
 // server.listen(80);
 // console.log("Server is listening on port 80");
 
