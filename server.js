@@ -61,7 +61,6 @@ function createDeck(){
 	return deck;
 }
 
-//"nyanCat","sovietBear", "internetz", "rickRoll", "doge", "technoViking", "partyVan", "wat"
 function createCard(cardName){
 	if(cardName == "nyanCat"){
 		return obj = {
@@ -210,44 +209,41 @@ io.on("connection", function(socket) {
 		un = obj.username;
 		pw = obj.password;
 		msg = obj.message;
-		var result = loginValidation(db, un, pw, msg, socket);
+		//msg is whether they wanted to login or create a user
+		//if the callback didn't work, it's null, so we return false
+		//otherwise we emit true after all conditions for creation/login are met
 		loginValidation(db, un, pw, msg, socket, function(result){
 			if (result != null && msg=="login"){
-
-			} //then we log them in
+				//use the db to check password for login
+				loginUser(db, un, pw, socket, function(result){
+					if(result!=null) io.emit("loginValidation", true);
+					else io.emit("loginValidation, false");
+				});
+				
+			} 
 			else if (result == null && msg=="create"){
-
-				io.emit("loginValidation", .... true?
-			} //then we create
-			else io.emit("loginValidation", false);
+				//use the db to create a user
+				createUser(db, un, pw, socket, function(result){
+					if(result!=null) io.emit("loginValidation", true); 
+					else io.emit("loginValidation", false); //create didn't succeed
+				});
+			} 
+			else{
+				io.emit("loginValidation", false); //couldn't login, couldn't create
+			} 
 		});
 
 		updateGameState();
-		//query the database
-		//if message == login && user / pw matches user record allow login : login = true;
-		//else if message == create && user doesn't exist
-			//add to DB and allow login : login = true;
-		//else return error for invalidity : return login = false;
+		
 		//add to player list (unless too large, then spectator)
-			//emit invalid or emit valid
+		
 
-		// io.emit("loginValidation", msg); //msg is a bool, if true it hides false invalid msg
+		// io.emit("loginValidation", msg); 
 		//pass the user objects on game update (when events occur)
-	});
-	socket.on("login", function(whichBookFromClient) {
-		//NOTE: It may be advisable to check any data that comes from the client!!!!!
-		//(not done yet)
-		insertBook(db, whichBookFromClient, function(result) {
-			if (result != null) {
-				updateClientGUI();
-			}
-		});
 	});
 
 	function loginValidation(db, userName, passWord, msg, socket, callback) {
 		var collection = db.collection("users");
-	//Syntax for a find is a little different, because we are gettng a Cursor back as a return value.
-	//We are telling the Cursor to convert to an array.
 		collection.find({username: userName}).toArray(function(err, docs) {
 			if (err != null) {
 				console.log("ERR on attempting to find..." + err);
@@ -258,11 +254,18 @@ io.on("connection", function(socket) {
 			}
 		});
 	}
-	//if null and msg==create createUser
-	function createUser(db, userName, passWord, socket, callback){
+	
+	function createUser(db, userName, passWord, socket, callback){ //if null and msg==create createUser
 		var collection = db.collection("users");
-		collection.insert({username : userName, password: passWord, wins: 0, losses: 0});
-		players[getUserIndex(socket)]={username:userName, score:0, wins:0, losses: 0};
+		collection.insertOne({username : userName, password: passWord, wins: 0, losses: 0}, function(err, result){
+			if (err!=null){
+				if //can't have over 8 players BUT we need to sit them... and create user obj -- also spectators need obj too >.<
+				players[getUserIndex(socket)]={username:userName, score:0, wins:0, losses: 0};
+				callback(result);
+			} 
+			else callback(null);
+		});
+		
 	}
 	function getUserIndex(socket){
 		for(var i = 0; i<allSocket.length(); i++){
@@ -281,6 +284,7 @@ io.on("connection", function(socket) {
 			}
 		});
 	}
+	//may actually want a loop in the main function that does this and calls it that many times instead of inside of here?
 	function updateScores(db, callback){ //to get looked at
 		var collection = db.collection("users");
 		for (var i = 0; i<players.length(); i++){
@@ -301,11 +305,11 @@ io.on("connection", function(socket) {
 				collection.updateMany({username: players[i].username, losses: players[i].losses }, function(err, result) {
 					if (err != null) {
 						console.log("ERR on attempting to update..." + err);
-						callback(null); //"returning" null means we are telling the caller it didn't work.
+						callback(null); 
 					}
 					else {
 						console.log("update() succeeded.  # of documents modified: " + result.result.n);
-						callback(result); //here we indicate success by returning the result object.
+						callback(result); 
 					}
 				});
 			}	
@@ -335,10 +339,14 @@ io.on("connection", function(socket) {
 		//round win && game win
 		if (round && game){
 			//update db : everyone who isn't the winner gains a loss, winner gains a win
+			updateScores(db, function(result){
+				//not sure if this will work, i have to update ALL the scores but don't have a filter for the db, so using a for loop currently
+				if (result==null) console.log(); //log whose data wasn't updated (manually change if error??)
+			});
 			io.emit("gameWin", msg); //msg is who won
 		}
 		else if (round){
-			//msg is round winner, increment score, change gameMode to redeal
+			//msg is round winner, increment score, change gameMode to redeal WHICH GAME MODE DOES THIS!!!
 			dealDeck();
 			lastRoundWinner = player; //should be a string for player name
 			io.emit("roundWin", player);
@@ -375,8 +383,7 @@ function acceptTrade (offeredPlayer, acceptedPlayer, acceptedCards){
 	}
 	var offeredCards = trades[offeredPlayerIndex].cards;
 	if(offeredCards.length() <= acceptCards.length()); //if a person accepts an offer they have to have equal or more cards than the offer
-	//you can choose to trade less you can't make someone else do it
-
+	//you can choose to trade less cards than you are offering, you can't make someone else do it
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
 	trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
 }
@@ -411,19 +418,3 @@ mongoClient.connect("mongodb://localhost:27017", function(err, database) {
 
 	server.listen(80, function() {console.log("Server is ready");})
 });
-
-
-
-
-
-
-// server.listen(80);
-// console.log("Server is listening on port 80");
-
-//ToDo:
-//Set up database
-//Set up database queries (search for validity/existence)
-//Client JS to handle the messages it receives (even a framework would be good for now)
-
-//HTML file
-//CSS stylesheet
