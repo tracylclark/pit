@@ -21,15 +21,23 @@ var ready = 0; //increment on ready message, check for gameReady status
 var sockets = [];
 var players = [];
 var hands = [];
+var collection;
+var trades = [];
+
 io.on("connect", function(socket) {
 	console.log("socket.io connect made");
 	socket.on("disconnect", function() {
 		console.log("socket.io disconnect made");
 	});
 });
+io.on("ready", function(socket){
+	ready+=1;
+	if(readyToPlay()){
+		dealDeck();
+		updateGameState();
+	}
+});
 
-var collection;
-var trades = [];
 //choose deck, populate deck, randomize, deal;
 
 function chooseDeck(){
@@ -143,8 +151,8 @@ function sitPlayer(){
 	players.push(userObj); //once they log in a user object is created and pushed w/ their
 	//socket to the array
 	sockets.push(socket); //this is only the player sockets, not the spectators
-
-
+	numberOfPlayers = players.length();
+	updateGameState();
 }
 
 // ready game
@@ -182,7 +190,7 @@ io.on("connection", function(socket) {
 	console.log("Somebody connected to our socket.io server :)");
 
 	socket.on("disconnect", function() { //need to change game mode on disconnect if a player
-		console.log("They probably closed their web browser or went to a different page :(");
+		console.log("Somebody left.");
 
 		var indexOfUser = allSockets.indexOf(socket);
 		allSockets.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
@@ -194,7 +202,8 @@ io.on("connection", function(socket) {
 			//if someone leaves and game has started will have to reset the entire game
 		}
 		//need to send a gameMode update in case person leaving was a player
-		io.emit("updateUserList", allUsernames);
+		// io.emit("updateUserList", allUsernames); 
+		updateGameState();
 	});
 
 	socket.on("login", function(obj) {
@@ -202,7 +211,9 @@ io.on("connection", function(socket) {
 		pw = obj.password;
 		msg = obj.message;
 		var result = loginValidation(db, un, pw, msg, socket);
-		io.emit("loginValidation", result);//{
+		io.emit("loginValidation", result);
+		updateGameState();
+		//{
 			//io.emit("loginValidation", result);
 	//	}
 		//query the database
@@ -240,9 +251,7 @@ io.on("connection", function(socket) {
 		}
 
 	}
-	// socket.on("updateGUI", function(msg) { //this is where we send the game state object
-	// 	io.emit("updateGUI", updateGUI());
-	// });
+	
 	socket.on("trade", function(msg){
 		var valid = validTrade(msg.player1, msg.cards);
 		io.emit("validTrade", valid);

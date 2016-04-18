@@ -15,16 +15,6 @@ function escapeHTML(theString) {
 		.replace(/'/g, "&#39;");
 }
 
-function hideLogin(obj){
-	//on a successful login or account creation, hide initial login screen
-
-}
-
-function login(){
-
-}
-
-
 function startUp(){
 	socket.on("gameWin", function(msg){
 		//update the GUI, display a msg with who won, etc
@@ -64,7 +54,7 @@ function startUp(){
 	});
 	socket.on("loginValidation", function(msg){
 		if(msg){ //this should only happen on a valid login
-			$("#loginScreen").style.visibility = "hidden";
+			$("#loginScreen").style.visibility = "hidden"; //may need to hide individual elements if this doesn't work
 			$("#trade").style.visibility = "visible";
 			$("#corner").style.visibility = "visible";
 		}
@@ -183,12 +173,7 @@ function startUp(){
 	$("#corner".click(function())){
 		socket.emit("corner");
 	}
-	socket.on("tradeValid", function(msg)){
-		if(msg.valid){ //if it was a valid trade offer
-			numberOfCards = msg.numberOfCards;
-			//update GUI with trade objects
-		}
-	}
+
 	for(var k = 0; k < numOfPlayers; k++){
 		$(".acceptTrade "+ k ).click(function(){
 			$(button).appendTo($('acceptButton') + k);
