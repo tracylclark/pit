@@ -66,37 +66,37 @@ function createCard(cardName){
 	if(cardName == "nyanCat"){
 		return obj = {
 			name : "nyanCat",
-			points : 100
+			points : 55
 		};
 	}
 	else if(cardName == "sovietBear"){
 		return obj = {
 			name : "sovietBear",
-			points : 100
+			points : 75
 		};
 	}
 	else if(cardName == "internetz"){
 		return obj = {
 			name : "internetz",
-			points:  100
+			points:  85
 		};
 	}
 	else if(cardName == "rickRoll"){
 		return obj = {
 			name : "rickRoll",
-			points : 100
+			points : 60
 		};
 	}
 	else if(cardName == "doge"){
 		return obj = {
 			name : "doge",
-			points : 100
+			points : 50
 		};
 	}
 	else if(cardName == "technoViking"){
 		return obj = {
 			name : "technoViking",
-			points : 100
+			points : 65
 		};
 	}
 	else if(cardName == "partyVan"){
@@ -108,7 +108,7 @@ function createCard(cardName){
 	else{//(cardName == "wat")
 		return obj = {
 			name : "wat",
-			points : 100
+			points : 80
 		};
 	}
 
@@ -202,7 +202,7 @@ io.on("connection", function(socket) {
 			//if someone leaves and game has started will have to reset the entire game
 		}
 		//need to send a gameMode update in case person leaving was a player
-		// io.emit("updateUserList", allUsernames); 
+		// io.emit("updateUserList", allUsernames);
 		updateGameState();
 	});
 
@@ -251,7 +251,7 @@ io.on("connection", function(socket) {
 		}
 
 	}
-	
+
 	socket.on("trade", function(msg){
 		var valid = validTrade(msg.player1, msg.cards);
 		io.emit("validTrade", valid);

@@ -18,11 +18,13 @@ function escapeHTML(theString) {
 function startUp(){
 	socket.on("gameWin", function(msg){
 		//update the GUI, display a msg with who won, etc
+		windows.allert(msg +" has won the game");
 		//updateGUI();
 
 	});
 	socket.on("roundWin", function(msg){
 		//increment game scores, create a round won by message, etc
+		windows.allert(msg " has won the round");
 		//updateGUI();
 	});
 	socket.on("updateGameState", function(obj){

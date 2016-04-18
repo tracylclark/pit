@@ -1,6 +1,6 @@
 TO DO:
 
-  game win handler on client.js
+  reset button
   set game mode and variables associated
   track validity and existence
   gui implementation of everything but login
@@ -8,13 +8,12 @@ TO DO:
   create database and collection on euclid
   trade on server and client side
   need to add in drop down menu (and drop down population (could just prepopulate with all options)) for corner
-  need click handler for accept trade
   todo : sit button and click handler
   loginValidation needs work w/ db handlers, inserting and finding users
   need to implement all server messages on client side
   updateGameState doesn't currently update spectators (card blanks or something)
   need to populate the card trays with the arrays of cards
-  
+
 TO Finish:
   server
     game win
