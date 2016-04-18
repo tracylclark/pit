@@ -18,13 +18,13 @@ function escapeHTML(theString) {
 function startUp(){
 	socket.on("gameWin", function(msg){
 		//update the GUI, display a msg with who won, etc
-		windows.allert(msg +" has won the game");
+		windows.alert(msg +" has won the game");
 		//updateGUI();
 
 	});
 	socket.on("roundWin", function(msg){
 		//increment game scores, create a round won by message, etc
-		windows.allert(msg " has won the round");
+		windows.alert(msg + " has won the round");
 		//updateGUI();
 	});
 	socket.on("updateGameState", function(obj){
@@ -42,7 +42,7 @@ function startUp(){
 		obj.password = escapeHTML(obj.password); //sanitize the input password before sending it to the server
 		obj.message = "login";
 		socket.emit("login", obj);
-		}});
+		});
 	$("#createButton").click(function(){
 		user = $("#username").val();
 		var obj = {
@@ -64,7 +64,7 @@ function startUp(){
 	//need to create an array of card objects that they want to trade as a global, then the click button will
 	//send that to the server
 	//clickHandlier on cards, will put selected cards objects onto trades.cards []
-	$("#cell0").click(function{
+	$("#cell0").click(function(){
 		if(find(trades.cards, 0)){
 			highlightCard("#cell0");
 			trades.cards.push(0);
@@ -74,7 +74,7 @@ function startUp(){
 			trades.cards.splice(0,1);
 		}
 	});
-	$("#cell1").click(function{
+	$("#cell1").click(function(){
 		if(find(trades.cards, 1)){
 			highlightCard("#cell1");
 			trades.cards.push(1);
@@ -84,7 +84,7 @@ function startUp(){
 			trades.cards.splice(1,1);
 		}
 	});
-	$("#cell2").click(function{
+	$("#cell2").click(function(){
 		if(find(trades.cards, 2)){
 			highlightCard("#cell2");
 			trades.cards.push(2);
@@ -94,7 +94,7 @@ function startUp(){
 			trades.cards.splice(2,1);
 		}
 	});
-	$("#cell3").click(function{
+	$("#cell3").click(function(){
 		if(find(trades.cards, 3)){
 			highlightCard("#cell3");
 			trades.cards.push(3);
@@ -104,7 +104,7 @@ function startUp(){
 			trades.cards.splice(3,1);
 		}
 	});
-	$("#cell4").click(function{
+	$("#cell4").click(function(){
 		if(find(trades.cards, 4)){
 			highlightCard("#cell4");
 			trades.cards.push(4);
@@ -114,7 +114,7 @@ function startUp(){
 			trades.cards.splice(4,1);
 		}
 	});
-	$("#cell5").click(function{
+	$("#cell5").click(function(){
 		if(find(trades.cards, 5)){
 			highlightCard("#cell5");
 			trades.cards.push(5);
@@ -124,7 +124,7 @@ function startUp(){
 			trades.cards.splice(5,1);
 		}
 	});
-	$("#cell6").click(function{
+	$("#cell6").click(function(){
 		if(find(trades.cards, 6)){
 			highlightCard("#cell6");
 			trades.cards.push(6);
@@ -134,7 +134,7 @@ function startUp(){
 			trades.cards.splice(6,1);
 		}
 	});
-	$("#cell7").click(function{
+	$("#cell7").click(function(){
 		if(find(trades.cards, 7)){
 			highlightCard("#cell7");
 			trades.cards.push(7);
@@ -144,7 +144,7 @@ function startUp(){
 			trades.cards.splice(7,1);
 		}
 	});
-	$("#cell7").click(function{
+	$("#cell7").click(function(){
 		if(find(trades.cards, 7)){
 			highlightCard("#cell7");
 			trades.cards.push(7);
@@ -154,7 +154,7 @@ function startUp(){
 			trades.cards.splice(7,1);
 		}
 	});
-	$("#cell8").click(function{
+	$("#cell8").click(function(){
 		if(find(trades.cards, 8)){
 			highlightCard("#cell8");
 			trades.cards.push(8);
@@ -164,17 +164,17 @@ function startUp(){
 			trades.cards.splice(8,1);
 		}
 	});
-	$("#trade").click(function()){
+	$("#trade").click(function(){
 		trades.player1 = user;
 		socket.emit("trade", trades);
 		trades.cards = [];
 		$(".card").forEach(function(){
 			unhighlightCard(".card");
 		});
-	}
-	$("#corner".click(function())){
+	});
+	$("#corner".click(function(){
 		socket.emit("corner");
-	}
+	}));
 
 	for(var k = 0; k < numOfPlayers; k++){
 		$(".acceptTrade "+ k ).click(function(){
