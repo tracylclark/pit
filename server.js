@@ -1,7 +1,3 @@
-var allUsernames = []; //this is everyone connected including spectators
-var allSockets = []; //the socket of everyone connected to the server, including spectators
-//we autosit the first 8 people to join, so we need to add those people to both arrays (allUN & players)
-//and we need to assign to allUN no matter what
 var mongoClient = require("mongodb").MongoClient;
 var ObjectID = require("mongodb").ObjectID;
 var express = require("express");
@@ -15,147 +11,78 @@ var io = socketIo(server);
 app.use(express.static("pub"));
 var db;
 var numberOfPlayers;
-var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game
+var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game, 2 is game over
 var ready = 0; //increment on ready message, check for gameReady status
-//congruent arrays to track player data
-var sockets = [];
 var players = [];
 var hands = [];
 var collection;
 var trades = [];
-//this is extraneous code, for some reason this is happening twice
-// io.on("connect", function(socket) {
-// 	console.log("socket.io connect made");
-// 	socket.on("disconnect", function() {
-// 		console.log("socket.io disconnect made");
-// 	});
-// });
-
+var specators = [];
 
 //choose deck, populate deck, randomize, deal;
-
 function chooseDeck(){
-	var suits = ["nyanCat","sovietBear", "internetz", "rickRoll", "doge", "technoViking", "partyVan", "wat"];
+	var chosenSuits = [];
+	var suits = [
+		{name : "nyanCat", points : 55},
+		{name : "sovietBear", points : 75},
+		{name : "internetz", points:  85},
+		{name : "rickRoll", points: 60},
+		{name : "doge", points: 50},
+		{name : "technoViking", points: 65},
+		{name : "partyVan", points: 100},
+		{name : "wat", points: 80}
+	];	
 	for(var i = 0; i < numberOfPlayers; i++){
 		var cardChooser = Math.floor(Math.random()*suits.length());
-		deck[i] = suits[cardChooser];
+		chosenSuits.push(suits[cardChooser]); 
 		suits.splice(cardChooser, 1);
 	}
-	return suits;
+	return chosenSuits;
 }
-
-function createDeck(){
-	var deck = [];
-	var suits = chooseDeck();
+function createDeck(){ //we call create deck, a random list of suits is created using chooseDeck() 
+	var deck = []; //we then populate a deck with card objects
+	var chosenSuits = chooseDeck();
 	for(var i = 0; i < numberOfPlayers; i++){
 		for(var j = 0; j < 9; j++){
-			deck.push(createCard(suits[i]));
+			deck.push(chosenSuits[i]);
 		}
 	}
 	return deck;
 }
-
-function createCard(cardName){
-	if(cardName == "nyanCat"){
-		return obj = {
-			name : "nyanCat",
-			points : 55
-		};
-	}
-	else if(cardName == "sovietBear"){
-		return obj = {
-			name : "sovietBear",
-			points : 75
-		};
-	}
-	else if(cardName == "internetz"){
-		return obj = {
-			name : "internetz",
-			points:  85
-		};
-	}
-	else if(cardName == "rickRoll"){
-		return obj = {
-			name : "rickRoll",
-			points : 60
-		};
-	}
-	else if(cardName == "doge"){
-		return obj = {
-			name : "doge",
-			points : 50
-		};
-	}
-	else if(cardName == "technoViking"){
-		return obj = {
-			name : "technoViking",
-			points : 65
-		};
-	}
-	else if(cardName == "partyVan"){
-		return obj = {
-			name : "partyVan",
-			points : 100
-		};
-	}
-	else{//(cardName == "wat")
-		return obj = {
-			name : "wat",
-			points : 80
-		};
-	}
-
-}
-
-
 function shuffleDeck(){
 	var deck = createDeck();
 	var playDeck;
-	var deckLength = deck.length();
-	for(var i =0; i < deckLength; i++){
-		var tmp = Math.floor(Math.random()*deck.length());
-		playDeck[i] = deck[tmp];
-		deck.splice(tmp, 1);
+	while(deck.length()){ //runs until the array is empty
+		var choose = Math.floor(Math.random()*deck.length());
+		playDeck.push(deck[choose]);
+		deck.splice(choose, 1);
 	}
 	return playDeck;
-
 }
 
-//ready player, call shuffleDeck and deal deck
-
 function dealDeck(){
-	if (gameMode == 1) {
-		var deck = shuffleDeck();
-		for(var i = 0; i < numberOfPlayers; i++){
-			for(var j = 0; j < 9; j++){
-				hands[i].push(deck.splice(0,1));
-			}
+	hands = []; //wipe out everyone's hands on restart
+	var deck = shuffleDeck();
+	for(var i = 0; i < numberOfPlayers; i++){
+		hands[i] = []; //create their hand as an empty array
+		for(var j = 0; j < 9; j++){
+  			hands[i].push(deck.splice(0,1)); //give each player nine cards
 		}
 	}
 }
 
-//sit player
-//auto-sit players in seats
-//for spectators either don't allow or once all seats are full they can spectate
-function sitPlayer(){
-	allUsernames.push(userObj); //add to all users yay
-	allSockets.push(socket);
-	if (sockets.length()==8)  {return;} //cannot have more than 8 players
-	players.push(userObj); //once they log in a user object is created and pushed w/ their
-	//socket to the array
-	sockets.push(socket); //this is only the player sockets, not the spectators
-	numberOfPlayers = players.length();
+function sitPlayer(userObj){ //this is called on a successful login
+	if (players.length()>8)  {
+		spectators.push(userObj);
+	} 
+	else {
+		players.push(userObj); 
+	}
 	updateGameState();
 }
 
-// ready game
 function readyToPlay(){
-	if (sockets.length()>=3 && ready>(Math.floor(0.5*sockets.length()))) return true;
-	return false;
-	//check status, change game mode
-	//if more than half of currently connected people click ready
-	//must be at least 3 people --- return false if its not
-	//cannot be more than 8 players --
+	return (players.length()>=3 && ready>(Math.floor(0.5*players.length())));
 }
 
 function checkForRoundWin(index){
