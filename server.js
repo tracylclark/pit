@@ -85,19 +85,19 @@ function readyToPlay(){
 	return (players.length()>=3 && ready>(Math.floor(0.5*players.length())));
 }
 
-function checkForRoundWin(index){
+function checkForRoundWin(playerIndex){
 	if (gameMode==1){
-		var card = hands[index][0];
-		for (var i = 0; i<hands[index].length(); i++){
-			if (hands[index][i]!=card) return false;
+		var card = hands[playerIndex][0].name;
+		for (var i = 1; i<hands[playerIndex].length(); i++){
+			if (hands[playerIndex][i].name!=card) return false;
 		}
 		return true;
 	}
 }
 
-function checkForGameWin(index){
+function checkForGameWin(playerIndex){
 	if (gameMode==1){
-		if (player[index].score>=500){
+		if (player[playerIndex].score>=500){
 			return true;
 		}
 		return false;
