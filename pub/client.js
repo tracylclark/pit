@@ -1,7 +1,7 @@
 socket = io();
 var user;
 var hand = [];
-var trades;
+var trades = [];
 var numOfPlayers;
 var playerNames = [];
 trades.cards = [];
@@ -155,13 +155,13 @@ function startUp(){
 		}
 	});
 	$("#cell8").click(function(){
-		if(find(trades.cards, 8)){
+		if(find(trades.cards, 8)){ //I'm pretty sure we have to tell WHICH INDEX TO PUSH TO HERE
 			highlightCard("#cell8");
 			trades.cards.push(8);
 		}
 		else{
-			unhighlightCard("#cell8");
-			trades.cards.splice(8,1);
+			unhighlightCard("#cell8"); //if they click a second time then we unhighlight and remove the card from the trade??
+			trades.cards.splice(8,1); //why not just make them click offer again?? would be much more innate i think
 		}
 	});
 	$("#trade").click(function(){
@@ -173,8 +173,8 @@ function startUp(){
 		});
 	});
 	$("#corner".click(function(){
-		socket.emit("corner");
-	}));
+		socket.emit("corner"); //function does an emit but i'm getting an error for missing a ) on the line after this
+	}); //but if i put it in it says this isn't a function :/
 
 	for(var k = 0; k < numOfPlayers; k++){
 		$(".acceptTrade "+ k ).click(function(){

@@ -18,7 +18,7 @@ var players = [];
 var hands = [];
 var collection;
 var trades = [];
-var specators = [];
+var spectators = [];
 
 //choose deck, populate deck, randomize, deal;
 function chooseDeck(){
@@ -232,6 +232,7 @@ io.on("connect", function(socket) { //was "connection"
 		un = obj.username;
 		pw = obj.password;
 		msg = obj.message;
+		console.log("Someone is attempting to " + msg);
 		//msg is whether they wanted to login or create a user
 		//if the callback didn't work, it's null, so we return false
 		//otherwise we emit true after all conditions for creation/login are met
@@ -242,6 +243,7 @@ io.on("connect", function(socket) { //was "connection"
 					if(result!=null && result!="error"){
 						if (players.length()<=8) players.push({name: un, socket: socket, wins: result[0].wins, losses: result[0].losses, score: 0});
 						else spectators.push({name: un, socket: socket}); //don't need wins, losses, or score for spectators
+						console.log("Login was successful.");
 						io.emit("loginValidation", true);
 					} 
 					else io.emit("loginValidation, false");
@@ -254,6 +256,7 @@ io.on("connect", function(socket) { //was "connection"
 					if(result!=null && result!="error"){ 
 						if (players.length()<=8) players.push({name: un, socket: socket, wins: 0, losses: 0, score: 0});
 						else spectators.push({name: un, socket: socket});
+						console.log("Create was successful.");
 						io.emit("loginValidation", true); 
 					} 
 					else io.emit("loginValidation", false); //create didn't succeed
