@@ -125,7 +125,7 @@ function createUser(db, userName, passWord, callback){ //if null and msg==create
 
 function loginUser(db, userName, passWord, callback){ //could make this much leaner, leaving it for now
 	var collection = db.collection("users");
-	if(collection.find({username: userName, password: passWord}).toArray(function(err, docs){
+	collection.find({username: userName, password: passWord}).toArray(function(err, docs){
 		if(err !=null){
 			console.log("Error on login trying to find " + err);
 			callback("error");
