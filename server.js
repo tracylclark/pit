@@ -104,129 +104,103 @@ function checkForGameWin(playerIndex){
 	}
 }
 
-function loginValidation(db, userName, passWord, msg, socket, callback) {
+function userQuery(db, userName, callback) {
 	var collection = db.collection("users");
 	collection.find({username: userName}).toArray(function(err, docs) {
 		if (err != null) {
-			console.log("ERR on attempting to find..." + err);
-			callback(null);
+			console.log("Error on attempting to find: " + err);
+			callback("error"); //error on trying to query the db
 		}
-		else {
-			callback(docs);
-		}
+		else callback(docs); //the docs object is null if the name doesn't exist
 	});
 }
 
-function createUser(db, userName, passWord, socket, callback){ //if null and msg==create createUser
+function createUser(db, userName, passWord, callback){ //if null and msg==create createUser()
 	var collection = db.collection("users");
 	collection.insertOne({username : userName, password: passWord, wins: 0, losses: 0}, function(err, result){
-		if (err!=null){
-			if //can't have over 8 players BUT we need to sit them... and create user obj -- also spectators need obj too >.<
-			players[getUserIndex(socket)]={username:userName, score:0, wins:0, losses: 0};
-			callback(result);
-		} 
-		else callback(null);
+		if (err!=null) callback("error");
+		else callback(result);
 	});
-	
 }
-function getUserIndex(socket){
-	for(var i = 0; i<allSocket.length(); i++){
-		if (sockets[i]==socket) return i;
-	}
-}
-function loginUser(db, userName, passWord, socket, callback){
+
+function loginUser(db, userName, passWord, callback){ //could make this much leaner, leaving it for now
 	var collection = db.collection("users");
 	if(collection.find({username: userName, password: passWord}).toArray(function(err, docs){
 		if(err !=null){
 			console.log("Error on login trying to find " + err);
-			callback(null);
+			callback("error");
 		}
-		else{
-			callback(docs);
-		}
+		else callback(docs); //returns null if no un / pw combination that matches
 	});
 }
+
 //may actually want a loop in the main function that does this and calls it that many times instead of inside of here?
 function updateScores(db, callback){ //to get looked at
 	var collection = db.collection("users");
 	for (var i = 0; i<players.length(); i++){
-		if (players[i].score>=500) {
-			collection.updateMany({username: players[i].username, wins: players[i].wins }, function(err, result) {
+			collection.updateMany({username: players[i].username, wins: players[i].wins, losses: players[i].losses}, function(err, result) {
 				if (err != null) {
-					console.log("ERR on attempting to update..." + err);
-					callback(null); //"returning" null means we are telling the caller it didn't work.
+					console.log("Error on attempting to update..." + err);
+					callback("error"); //"returning" null means we are telling the caller it didn't work.
 				}
 				else {
 					console.log("update() succeeded.  # of documents modified: " + result.result.n);
 					callback(result); //here we indicate success by returning the result object.
 				}
 			});
-
-		}
-		else{ //increment losses
-			collection.updateMany({username: players[i].username, losses: players[i].losses }, function(err, result) {
-				if (err != null) {
-					console.log("ERR on attempting to update..." + err);
-					callback(null); 
-				}
-				else {
-					console.log("update() succeeded.  # of documents modified: " + result.result.n);
-					callback(result); 
-				}
-			});
-		}	
 	}
 }
 
-function validTrade(player, cards){
-	var card=hands[whichPlayer][cards[0]].suits;
+function validTradeOffer(playerName, cardIndexes){
 	if (cards.length()>4) return false; //can't trade more than 4 cards per rules
 	var whichPlayer;
 	for (var i = 0; i<numberOfPlayers; i++){ //get the correct player
-		if(players[i]==player) whichPlayer=i;
+		if(players[i].name==playerName) whichPlayer=i;
 	}
-	for (var i = 0; i<cards.length(); i++){
-		if (hands[whichPlayer][cards[i]].suits != card) return false; //validate all cards are the same
+ 	var cardSuit=hands[whichPlayer][cardsIndexes[0]].name;     //example card:  {name : "wat", points: 80}
+	for (var i = 1; i<cardIndexes.length(); i++){
+		if (hands[whichPlayer][cards[i]].name != cardSuit) return false; //validate all cards are the same
 	}
-	trades[whichPlayer]=cards;
+	trades[whichPlayer]=cardIndexes; //trigger trade push to clients
 	return true;
 }
 
-function acceptTrade (offeredPlayer, acceptedPlayer, acceptedCards){
+function acceptTrade (offeredPlayerName, acceptedPlayerName, acceptedCards){
 	//if players are in accept trade then BOTH of them have been through validTrade()
 	var offeredPlayerIndex;
 	var acceptedPlayerIndex;
 	for (var i = 0; i<numberOfPlayers; i++){ //get the correct player
-		if(players[i]==offeredPlayer) offeredPlayerIndex=i;
-		if(players[i]==acceptedPlayer) acceptedPlayerIndex=i;
+		if(players[i]==offeredPlayerName) offeredPlayerIndex=i;
+		if(players[i]==acceptedPlayerName) acceptedPlayerIndex=i;
 	}
-	var offeredCards = trades[offeredPlayerIndex].cards;
-	if(offeredCards.length() <= acceptCards.length()); //if a person accepts an offer they have to have equal or more cards than the offer
+	var offeredCards = trades[offeredPlayerIndex];
+	if(offeredCards.length() <= acceptCards.length()){ //if a person accepts an offer they have to have equal or more cards than the offer
 	//you can choose to trade less cards than you are offering, you can't make someone else do it
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
-	trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
+		trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
+	}
 }
 function trade(index1, cards1, index2, cards2){
-	if (cards1.length()<cards2.length()) var length = cards1.length();
-	else var length = cards2.length();
 	for(var i = 0; i<cards1.length(); i++){
 		var tmp = hands[index1][cards[i]]; //store player 1 card
 		hands[index1][cards[i]]=hands[index2][cards[i]]; //make player 1 card = player 2
 		hands[index2][cards[i]] = tmp; //make player 2 = stored player 1 original card
 	}
+	trades[index1] = null;
+	trades[index2] = null;
 }
 
 function updateGameState(){
-	var obj = {};
-	obj.players = players; //this is the player objects
-	obj.trades = trades; //if there are trades available needs to be shown
-	obj.allUsernames = allUsernames;
-	obj.gameMode = gameMode;
+	var gameState = {};
+	gameState.players = players; //this is the player objects
+	gameState.trades = trades; //if there are trades available needs to be shown
+	gameState.spectators = spectators;
+	gameState.gameMode = gameMode;
 	for(var i = 0; i<numberOfPlayers; i++){
-		obj.hand = hands[i];
-		io.emit("updateGameState", obj);
+		gameState.hand = hands[i];
+		io.emit("updateGameState", gameState);
 	}
-	//for now we ignore spectators
+	//ignore spectators for now
 }
 
 io.on("connect", function(socket) { //was "connection"
