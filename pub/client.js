@@ -99,7 +99,7 @@ function startUp(){
 	});
 
 	function acceptTrade(index){
-    var selecteduserName = $("player"+index).innerhtml();
+    var selecteduserName = $("player"+index).html();
     socket.emit("acceptTrade", {player1:selectedUserName, cards:selectedCards} );
   }
   
