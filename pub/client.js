@@ -38,11 +38,11 @@ function startUp(){
   
   
 	socket.on("gameWin", function(msg){ //server sends string: name of winner
-		windows.alert(msg +" has won the game."); //display who won
+		alert(msg +" has won the game."); //display who won
 	});
   
 	socket.on("roundWin", function(msg){ //server sends string: name of round winner
-		windows.alert(msg + " has won the round.");
+		alert(msg + " has won the round.");
 	});
   
 	socket.on("updateGameState", function(gameState){ //server send gamestate object
@@ -55,9 +55,12 @@ function startUp(){
 			$("#trade").show();
 			$("#corner").show();
 		}
+		else{
+			alert("Username may be taken or password may be incorrect, try again.");
+		}
 	});
   
-  function login(message){
+  	function login(message){
 		user = $("#username").val();
 		var userCredentials = {
 			username: user,
@@ -128,4 +131,4 @@ function updateGUI(gameState){
   });
 }
 
-$(startUp());
+$(startUp);

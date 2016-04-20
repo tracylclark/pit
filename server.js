@@ -19,6 +19,7 @@ var hands = [];
 var collection;
 var trades = [[],[],[],[],[],[],[],[]];
 var spectators = [];
+//need this because we cannot send a socket across the socket
 
 //choose deck, populate deck, randomize, deal;
 function chooseDeck(){
@@ -162,9 +163,24 @@ function trade(index1, cards1, index2, cards2){
 
 function updateGameState(){
 	var gameState = {};
-	gameState.players = players; //this is the player objects
+	var playersToSend = [];
+	var spectatorsToSend = [];
+	for(var i=0; i<players.length; i++){
+		playersToSend[i] ={
+			name: players[i].name,
+			wins: players[i].wins,
+			losses: players[i].losses, 
+			score: players[i].score
+		};
+	}
+	for(i=0; i<spectators.length; i++){
+		spectatorsToSend[i] = {
+			name: spectators[i].name
+		};
+	}
+	gameState.players = playersToSend; //this is the player objects
 	gameState.trades = trades; //if there are trades available needs to be shown
-	gameState.spectators = spectators;
+	gameState.spectators = spectatorsToSend;
 	gameState.gameMode = gameMode;
 	for(var i = 0; i<players.length; i++){
 		gameState.hand = hands[i];
