@@ -1,7 +1,4 @@
 /*pit*/
-.table{
-	border: 1px solid black;
-}
 #loginScreen{
 	margin-left: 70%;
 	margin-right: 0%;
@@ -29,15 +26,32 @@
 	display:none;
 }
 #corner{
-	font-size: 24px; 
-	background-color: #f44336; /*red*/
+	font-size: 32px; 
+	background-color: #b30000; /*red*/
 	display:none;
+	width: 200px;
+	height: 200px;
 }
-#acceptTrade{
+/*#acceptTrade{
 	display:none;
+}*/
+.table {
+	display: table;
+}
+
+.row {
+	display: table-row;
+}
+
+.cell {
+	display: table-cell;
+	border-spacing:10px 0px;
+	border: 1px solid black;
+	font-size: 24px;
 }
 .card{
-	padding: 10px;
+	width: 125px;
+	height: 175px;
 }
 #ready{
 	display:none;

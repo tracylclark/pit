@@ -17,11 +17,11 @@ function escapeHTML(theString) {
 }
 
 function highlightCard(cell){
-	$(cell).css("background-color", "rgba(255,180,0,.5)");
+	$(cell).css("border", "3px solid #ff66ff"); 
 }
 
 function unhighlightCard(cell){
-	$(cell).css("background-color", "");
+	$(cell).css("border", "1px solid black");
 }
 
 function find(array, val){
@@ -54,6 +54,7 @@ function startUp(){
 			$("#loginScreen").hide(); //may need to hide individual elements if this doesn't work
 			$("#trade").show();
 			$("#corner").show();
+			$("#rules").hide();
 		}
 		else{
 			alert("Username may be taken or password may be incorrect, try again.");
@@ -75,7 +76,7 @@ function startUp(){
 	$("#createButton").click(function(){login("create");});
   
 	//need to create an array of card indexes that they want to trade as a global, clicking trade will send it to the server
-  [0,1,2,3,4,5,6,7].forEach(function(i){
+  [0,1,2,3,4,5,6,7,8].forEach(function(i){
     $("#cell"+i).click(function(){
       if(selectedCards.indexOf(i) == -1){ 
         highlightCard("#cell"+i); 
@@ -99,7 +100,7 @@ function startUp(){
 	});
 
 	function acceptTrade(index){
-    var selecteduserName = $("player"+index).html();
+    var selectedUserName = $("player"+index).html();
     socket.emit("acceptTrade", {player1:selectedUserName, cards:selectedCards} );
   }
   
@@ -111,11 +112,13 @@ function startUp(){
 function updateGameState(gameState){
   if (gameState.gameMode==1){
    $("#ready").hide(); 
-   $("#rules").hide();
   }
   if (gameState.gameMode==2){
    $("#ready").show(); 
   }
+  gameState.hand.forEach(function(card, i){
+    $("#cell"+i).background-image('url("'+card.name+'.png")');
+  });
   gameState.players.forEach(function(player, i){
     $("#player"+i).html(player.name);
     $("#score"+i).html(player.score);
@@ -126,7 +129,8 @@ function updateGameState(gameState){
       $("#numberOfCards"+i).html(gameState.trades[i].length);
     }
     else{
-      $("#trade"+i).hide();
+      $("#acceptTrade"+i).hide();
+      $("#trade").hide()
       $("#numberOfCards"+i).html("");
     }
   });
