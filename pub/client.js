@@ -108,25 +108,26 @@ function startUp(){
   });
 }
 
-function updateGUI(gameState){
+function updateGameState(gameState){
   if (gameState.gameMode==1){
-   $("ready").hide(); 
+   $("#ready").hide(); 
+   $("#rules").hide();
   }
   if (gameState.gameMode==2){
-   $("ready").show(); 
+   $("#ready").show(); 
   }
   gameState.players.forEach(function(player, i){
-    $("#player"+i).innerhtml(player.name);
-    $("#score"+i).innerhtml(player.score);
-    $("#win"+i).innerhtml(player.wins);
-    $("#loss"+i).innerhtml(player.losses);
+    $("#player"+i).html(player.name);
+    $("#score"+i).html(player.score);
+    $("#win"+i).html(player.wins);
+    $("#loss"+i).html(player.losses);
     if(gameState.trades[i].length > 0){
       $("#trade"+i).show();
-      $("#numberOfCards"+i).innerhtml(gameState.trades[i].length);
+      $("#numberOfCards"+i).html(gameState.trades[i].length);
     }
     else{
       $("#trade"+i).hide();
-      $("#numberOfCards"+i).innerhtml("");
+      $("#numberOfCards"+i).html("");
     }
   });
 }
