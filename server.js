@@ -34,7 +34,7 @@ function chooseDeck(){
 		{name : "wat", points: 80}
 	];	
 	for(var i = 0; i < numberOfPlayers; i++){
-		var cardChooser = Math.floor(Math.random()*suits.length;
+		var cardChooser = Math.floor(Math.random()*suits.length);
 		chosenSuits.push(suits[cardChooser]); 
 		suits.splice(cardChooser, 1);
 	}
@@ -53,11 +53,11 @@ function createDeck(){ //we call create deck, a random list of suits is created 
 function shuffleDeck(){
 	var deck = createDeck();
 	var playDeck;
-	while(deck.length{ //runs until the array is empty
-		var choose = Math.floor(Math.random()*deck.length;
+	while(deck.length){ 
+		var choose = Math.floor(Math.random()*deck.length);
 		playDeck.push(deck[choose]);
 		deck.splice(choose, 1);
-	}
+	} //runs until the array is empty
 	return playDeck;
 }
 
@@ -83,7 +83,7 @@ function sitPlayer(userObj){ //this is called on a successful login
 }
 
 function readyToPlay(){
-	return (players.length>=3 && ready>(Math.floor(0.5*players.length));
+	return (players.length>=3 && ready>(Math.floor(0.5*players.length)));
 }
 
 function checkForRoundWin(playerIndex){
@@ -144,7 +144,7 @@ function validTradeOffer(index, cardIndexes){
 function acceptTrade (offeredPlayerIndex, acceptedPlayerIndex, acceptedCards){ 
 	//if players are in accept trade then BOTH of them have been through validTrade()
 	var offeredCards = trades[offeredPlayerIndex];
-	if(offeredCards.length <= acceptCards.length{ //if a person accepts an offer they have to have equal or more cards than the offer
+	if(offeredCards.length <= acceptCards.length){ //if a person accepts an offer they have to have equal or more cards than the offer
 	//you can choose to trade less cards than you are offering, you can't make someone else do it
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
 		trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
@@ -166,7 +166,7 @@ function updateGameState(){
 	gameState.trades = trades; //if there are trades available needs to be shown
 	gameState.spectators = spectators;
 	gameState.gameMode = gameMode;
-	for(var i = 0; i<numberOfPlayers; i++){
+	for(var i = 0; i<players.length; i++){
 		gameState.hand = hands[i];
 		io.emit("updateGameState", gameState);
 	}

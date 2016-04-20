@@ -68,7 +68,7 @@ function startUp(){
 		userCredentials.message = message;
 		socket.emit("login", userCredentials);
 	}
-	$("#loginButton").click(function(){login("login");});  
+	$("#loginButton").click(function(){login("login");}); 
 	$("#createButton").click(function(){login("create");});
   
 	//need to create an array of card indexes that they want to trade as a global, clicking trade will send it to the server
