@@ -124,20 +124,10 @@ function createUser(db, userName, passWord, callback){ //we don't have to check 
 	});
 }
 
-//may actually want a loop in the main function that does this and calls it that many times instead of inside of here?
-function updateScores(db, callback){ //to get looked at
+function updateScores(db){ 
 	var collection = db.collection("users");
 	for (var i = 0; i<players.length(); i++){
-			collection.updateMany({username: players[i].username, wins: players[i].wins, losses: players[i].losses}, function(err, result) {
-				if (err != null) {
-					console.log("Error on attempting to update..." + err);
-					callback("error"); //"returning" null means we are telling the caller it didn't work.
-				}
-				else {
-					console.log("update() succeeded.  # of documents modified: " + result.result.n);
-					callback(result); //here we indicate success by returning the result object.
-				}
-			});
+			collection.update({username: players[i].username}, {$set: { wins: players[i].wins, losses: players[i].losses}});
 	}
 }
 
@@ -293,20 +283,17 @@ io.on("connect", function(socket) {
 			players[playerIndex].score += hands[playerIndex][0].points; //increment their score based on their first card
 			game = checkForGameWin(playerIndex); //check to see if the game is over
 			if (game){
-			for(var i; i<players.length(); i++){
-				if (i==playerIndex) players[i].wins+=1;
-				else players[i].losses+=1;
-				players[i].ready = false;
-			}
-			gameMode = 0;
-			readyToPlay = 0;
-			updateScores(db, function(result){
-				//not sure if this will work, i have to update ALL the scores but don't have a filter for the db, so using a for loop currently
-				if (result=="error") console.log("Error on updating player scores in the database."); 
-				});
+				for(var i; i<players.length(); i++){
+					if (i==playerIndex) players[i].wins+=1;
+					else players[i].losses+=1;
+					players[i].ready = false;
+				}
+				gameMode = 0;
+				readyToPlay = 0;
+				updateScores(db);
 				io.emit("gameWin", players[playerIndex].name); //msg is who won
 			}
-			else if (round){
+			else{
 				dealDeck();
 				io.emit("roundWin", players[playerIndex].name);
 			}
