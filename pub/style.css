@@ -26,14 +26,17 @@
 
 }
 #trade{
-	visibility: hidden;
+	display:none;
 }
 #corner{
-	visibility: hidden;
+	display:none;
 }
 #acceptTrade{
-	visibility: hidden;
+	display:none;
 }
 .card{
 	padding: 10px;
+}
+#ready{
+	display:none;
 }
