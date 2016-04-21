@@ -47,18 +47,21 @@ function startUp(){
   
 	socket.on("updateGameState", function(gameState){ //server send gamestate object
 		updateGameState(gameState);
-	})
+	});
   
 	socket.on("loginValidation", function(msg){  //server returns boolean - success
 		if(msg){ //this should only happen on a valid login
 			$("#loginScreen").hide(); //may need to hide individual elements if this doesn't work
-			$("#trade").show();
-			$("#corner").show();
 			$("#rules").hide();
+			$(".userTable").show();
+			$("#ready").show();
 		}
 		else{
 			alert("Username may be taken or password may be incorrect, try again.");
 		}
+	});
+	socket.on("gameOver", function(){
+		alert("Someone left the game during play. Click ready to restart the game.")
 	});
   
   	function login(message){
@@ -92,16 +95,22 @@ function startUp(){
 	$("#trade").click(function(){
 		socket.emit("trade", selectedCards);
 		selectedCards = [];
-    unhighlightCard(".card");
+    	unhighlightCard(".card");
 	});
   
 	$("#corner").click(function(){
 		socket.emit("corner"); 
 	});
 
+	$("#ready").click(function(){
+		socket.emit("ready");
+	});
+
 	function acceptTrade(index){
-    var selectedUserName = $("player"+index).html();
-    socket.emit("acceptTrade", {player1:selectedUserName, cards:selectedCards} );
+    //var selectedUserName = $("player"+index).html();
+    socket.emit("acceptTrade", {offeredPlayerIndex:index, cards:selectedCards} );
+    selectedCards = [];
+    unhighlightCard(".card");
   }
   
   [0,1,2,3,4,5,6,7].forEach(function(i){
@@ -110,30 +119,41 @@ function startUp(){
 }
 
 function updateGameState(gameState){
-  if (gameState.gameMode==1){
-   $("#ready").hide(); 
-  }
-  if (gameState.gameMode==2){
-   $("#ready").show(); 
-  }
-  gameState.hand.forEach(function(card, i){
-    $("#cell"+i).background-image('url("'+card.name+'.png")');
-  });
-  gameState.players.forEach(function(player, i){
-    $("#player"+i).html(player.name);
-    $("#score"+i).html(player.score);
-    $("#win"+i).html(player.wins);
-    $("#loss"+i).html(player.losses);
-    if(gameState.trades[i].length > 0){
-      $("#trade"+i).show();
-      $("#numberOfCards"+i).html(gameState.trades[i].length);
-    }
-    else{
-      $("#acceptTrade"+i).hide();
-      $("#trade").hide()
-      $("#numberOfCards"+i).html("");
-    }
-  });
+	console.log(updateGameState);
+	if (gameState.gameMode==1){
+		$("#trade").show();
+		$("#playerHand").show();
+		$("#ready").hide();
+		$("#corner").show(); 
+		gameState.hand.forEach(function(card, i){
+			$("#cell"+i).css("background-image", 'url("'+card.name+'.png")');
+		});
+	}
+	if (gameState.gameMode==2){ 
+		$("#corner").hide();
+		$("#ready").show();
+		$("#trade").hide();
+		$("#playerHand").hide();
+	}
+	[0,1,2,3,4,5,6,7].forEach(function(i){
+		$("#row"+i).hide();
+	});
+	gameState.players.forEach(function(player, i){
+		$("#player"+i).html(player.name);
+		$("#score"+i).html(player.score);
+		$("#win"+i).html(player.wins);
+		$("#loss"+i).html(player.losses);
+		if(gameState.trades[i].length > 0){
+			$("#trade"+i).show();
+			$("#numberOfCards"+i).html(gameState.trades[i].length);
+		}
+		else{
+			$("#acceptTrade"+i).hide();
+			$("#trade"+i).hide()
+			$("#numberOfCards"+i).html("");
+		}
+		$("#row"+i).show();
+	});
 }
 
 $(startUp);

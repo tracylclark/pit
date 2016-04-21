@@ -23,14 +23,22 @@
 
 }
 #trade{
+	font-size: 32px; 
+	background-color: #00ff00; /*green*/
 	display:none;
+	width: 150px;
+	height: 150px;
+	float:right;
+	margin-right: 20px;
 }
 #corner{
 	font-size: 32px; 
 	background-color: #b30000; /*red*/
 	display:none;
-	width: 200px;
-	height: 200px;
+	width: 150px;
+	height: 150px;
+	float:right;
+	margin-right: 20px;
 }
 /*#acceptTrade{
 	display:none;
@@ -48,11 +56,41 @@
 	border-spacing:10px 0px;
 	border: 1px solid black;
 	font-size: 24px;
+
 }
 .card{
 	width: 125px;
 	height: 175px;
+	background-size: 100% 100%;
+	background-repeat: no-repeat;
 }
 #ready{
 	display:none;
+	font-size: 32px; 
+	background-color: #b30000; /*red*/
+	display:none;
+	width: 150px;
+	height: 150px;
+	float:right;
+	margin-right: 20px;
 }
+.userTable{
+	display:none;
+	/*border-collapse: separate;
+	border-spacing: 5px;*/
+	text-align: center;
+	float:left;
+}
+#playerHand{
+	display:none;
+	position:absolute;
+	bottom:5px;
+}
+#trade0{display:none;}
+#trade1{display:none;}
+#trade2{display:none;}
+#trade3{display:none;}
+#trade4{display:none;}
+#trade5{display:none;}
+#trade6{display:none;}
+#trade7{display:none;}

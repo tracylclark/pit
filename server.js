@@ -11,7 +11,6 @@ var io = socketIo(server);
 app.use(express.static("pub"));
 
 var db;
-// var numberOfPlayers;
 var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game, 2 is game over
 var ready = 0; //increment on ready message, check for gameReady status
 var players = [];
@@ -19,7 +18,6 @@ var hands = [];
 var collection;
 var trades = [[],[],[],[],[],[],[],[]];
 var spectators = [];
-//need this because we cannot send a socket across the socket
 
 //choose deck, populate deck, randomize, deal;
 function chooseDeck(){
@@ -34,7 +32,7 @@ function chooseDeck(){
 		{name : "partyVan", points: 100},
 		{name : "wat", points: 80}
 	];	
-	for(var i = 0; i < numberOfPlayers; i++){
+	for(var i = 0; i < players.length; i++){
 		var cardChooser = Math.floor(Math.random()*suits.length);
 		chosenSuits.push(suits[cardChooser]); 
 		suits.splice(cardChooser, 1);
@@ -44,7 +42,7 @@ function chooseDeck(){
 function createDeck(){ //we call create deck, a random list of suits is created using chooseDeck() 
 	var deck = []; //we then populate a deck with card objects
 	var chosenSuits = chooseDeck();
-	for(var i = 0; i < numberOfPlayers; i++){
+	for(var i = 0; i < players.length; i++){
 		for(var j = 0; j < 9; j++){
 			deck.push(chosenSuits[i]);
 		}
@@ -53,7 +51,7 @@ function createDeck(){ //we call create deck, a random list of suits is created 
 }
 function shuffleDeck(){
 	var deck = createDeck();
-	var playDeck;
+	var playDeck = [];
 	while(deck.length){ 
 		var choose = Math.floor(Math.random()*deck.length);
 		playDeck.push(deck[choose]);
@@ -65,10 +63,10 @@ function shuffleDeck(){
 function dealDeck(){
 	hands = []; //wipe out everyone's hands on restart
 	var deck = shuffleDeck();
-	for(var i = 0; i < numberOfPlayers; i++){
+	for(var i = 0; i < players.length; i++){
 		hands[i] = []; //create their hand as an empty array
 		for(var j = 0; j < 9; j++){
-  			hands[i].push(deck.splice(0,1)); //give each player nine cards
+  			hands[i].push(deck.splice(0,1)[0]); //give each player nine cards
 		}
 	}
 }
@@ -99,7 +97,7 @@ function checkForRoundWin(playerIndex){
 
 function checkForGameWin(playerIndex){
 	if (gameMode==1){
-		if (player[playerIndex].score>=500){
+		if (players[playerIndex].score>=500){
 			return true;
 		}
 		return false;
@@ -128,24 +126,25 @@ function createUser(db, userName, passWord, callback){ //we don't have to check 
 function updateScores(db){ 
 	var collection = db.collection("users");
 	for (var i = 0; i<players.length; i++){
-			collection.update({username: players[i].username}, {$set: { wins: players[i].wins, losses: players[i].losses}});
+			var player = "\""+players[i].name+"\"";
+			collection.update({username: player}, {$set: { wins: players[i].wins, losses: players[i].losses}});
 	}
 }
 
-function validTradeOffer(index, cardIndexes){
-	if (cards.length>4) return false; //can't trade more than 4 cards per rules
- 	var cardSuit=hands[index][cardsIndexes[0]].name;     //example card:  {name : "wat", points: 80}
+function validTradeOffer(playerIndex, cardIndexes){
+	if (cardIndexes.length>4 || cardIndexes.length<1 || !cardIndexes) return false; //can't trade more than 4 cards per rules
+ 	var cardSuit=hands[playerIndex][cardIndexes[0]].name;     //example card:  {name : "wat", points: 80}
 	for (var i = 1; i<cardIndexes.length; i++){
-		if (hands[index][cards[i]].name != cardSuit) return false; //validate all cards are the same
+		if (hands[playerIndex][cardIndexes[i]].name != cardSuit) return false; //validate all cards are the same
 	}
-	trades[index]=cardIndexes; //trigger trade push to clients
+	trades[playerIndex]=cardIndexes; //trigger trade push to clients
 	return true;
 }
 
 function acceptTrade (offeredPlayerIndex, acceptedPlayerIndex, acceptedCards){ 
 	//if players are in accept trade then BOTH of them have been through validTrade()
 	var offeredCards = trades[offeredPlayerIndex];
-	if(offeredCards.length <= acceptCards.length){ //if a person accepts an offer they have to have equal or more cards than the offer
+	if(offeredCards.length <= acceptedCards.length){ //if a person accepts an offer they have to have equal or more cards than the offer
 	//you can choose to trade less cards than you are offering, you can't make someone else do it
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
 		trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
@@ -153,9 +152,9 @@ function acceptTrade (offeredPlayerIndex, acceptedPlayerIndex, acceptedCards){
 }
 function trade(index1, cards1, index2, cards2){
 	for(var i = 0; i<cards1.length; i++){
-		var tmp = hands[index1][cards[i]]; //store player 1 card
-		hands[index1][cards[i]]=hands[index2][cards[i]]; //make player 1 card = player 2
-		hands[index2][cards[i]] = tmp; //make player 2 = stored player 1 original card
+		var tmp = hands[index1][cards1[i]]; //store player 1 card
+		hands[index1][cards1[i]]=hands[index2][cards2[i]]; //make player 1 card = player 2
+		hands[index2][cards2[i]] = tmp; //make player 2 = stored player 1 original card
 	}
 	trades[index1] = [];
 	trades[index2] = [];
@@ -184,13 +183,13 @@ function updateGameState(){
 	gameState.gameMode = gameMode;
 	for(var i = 0; i<players.length; i++){
 		gameState.hand = hands[i];
-		io.emit("updateGameState", gameState);
+		players[i].socket.emit("updateGameState", gameState);
 	}
 	//ignore spectators for now
 }
 
 io.on("connect", function(socket) { 
-	console.log("Somebody connected to our socket.io server");
+	console.log("Somebody connected to server");
 
 	function getPlayerIndexBySocket(socket){
 		return players.map(function(e) { return e.socket; }).indexOf(socket);
@@ -199,105 +198,120 @@ io.on("connect", function(socket) {
 		return players.map(function(e) { return e.name; }).indexOf(name);
 	}
   
-	socket.on("disconnect", function() { 
-		console.log("Somebody left.");
-		var indexOfUser = getPlayerIndexBySocket(socket);
+	socket.on("disconnect", function() {
+		var indexOfUser = spectators.map(function(e) { return e.socket; }).indexOf(socket);
 		if (indexOfUser!=-1){
+			console.log("A spectator left.");
 			spectators.splice(indexOfUser, 1); //index to remove at, how many elements to remove.
 		}
 		else{
-			indexOfUser = players.map(function(e) { return e.socket; }).indexOf(socket);
+			indexOfUser = getPlayerIndexBySocket(socket);
 			if (indexOfUser!=-1){
+				console.log("A player left.");
 				players.splice(indexOfUser, 1);
-				if (gameMode==1) gameMode = 2; //game over if a player leaves during play
-				//should maybe send an alert to the players to let them known what happened
+				if (gameMode==0 || gameMode==2){
+					if(players[indexOfUser].ready) ready--;
+				}
+				if (gameMode==1){
+					trades = [[],[],[],[],[],[],[],[]];
+					hands = [];
+					for(var i = 0; i<players.length; i++){
+						players[i].ready = false;
+						players[i].score = 0;
+					}
+					ready = 0;
+					gameMode = 2; //game over if a player leaves during play
+					io.emit("gameOver"); //send a gameOver message to everyone
+					updateGameState();
+				} 
 			}
 		}
 		updateGameState();
 	});
 
 	socket.on("login", function(credentials) { 
-		console.log("Someone is attempting to " + credentials.message);
 		//if the db errored trying to check / create / login didn't work return false
 		//otherwise we emit true after all conditions for creation/login are met
 		userQuery(db, credentials.username, function(result){
-		if (result == "error"){
-			io.emit("loginValidation", false);
-			return; 
-		}
-		if (result.length>0 && credentials.message=="login"){
-			var indexOfUser = getPlayerIndexByName(credentials.username);
-			if (indexOfUser!=-1) {
-			io.emit("loginValidation", false);
-		}
-		else if (credentials.password == result[0].password){
-			if (players.length<=8 && gameMode!=1){
-				players.push({name: credentials.username, socket: socket, wins: result[0].wins, losses: result[0].losses, score: 0});
+			if (result == "error"){
+				socket.emit("loginValidation", false);
+				return; 
 			}
-			else{ //don't need wins, losses, or score for spectators
-				spectators.push({name: credentials.username, socket: socket}); 
+			if (result.length>0 && credentials.message=="login"){
+				var indexOfUser = getPlayerIndexByName(credentials.username);
+				if (indexOfUser!=-1) {
+					socket.emit("loginValidation", false);
+				}
+				else if (credentials.password == result[0].password){
+					if (players.length<=8 && gameMode!=1){
+						players.push({name: credentials.username, socket: socket, wins: result[0].wins, losses: result[0].losses, score: 0, ready: false});
+					}
+					else{ //don't need wins, losses, or score for spectators
+						spectators.push({name: credentials.username, socket: socket}); 
+					}
+					socket.emit("loginValidation", true);
+					updateGameState();
+				}
+				else {
+					socket.emit("loginValidation", false);
+				}
 			}
-			console.log("Login was successful.");
-			io.emit("loginValidation", true);
-		}
-		else {
-			io.emit("loginValidation", false);
-		}
-	}
 			else if (result.length==0 && credentials.message=="create"){
 				//use the db to create a user
 				createUser(db, credentials.username, credentials.password, function(result){
 					if(result.length!=0 && result!="error"){ 
-						if (players.length<=8 && gameMode!=1) players.push({name: credentials.username, socket: socket, wins: 0, losses: 0, score: 0});
+						if (players.length<=8 && gameMode!=1) players.push({name: credentials.username, socket: socket, wins: 0, losses: 0, score: 0, ready: false});
 						else spectators.push({name: credentials.username, socket: socket});
 						console.log("Create was successful.");
-						io.emit("loginValidation", true); 
+						socket.emit("loginValidation", true); 
+						updateGameState();
 					} 
-					else io.emit("loginValidation", false); //create didn't succeed
+					else socket.emit("loginValidation", false); //create didn't succeed
 				});
 			} 
 			else{
-				io.emit("loginValidation", false); //couldn't login, couldn't create
+				socket.emit("loginValidation", false); //couldn't login, couldn't create
 			} 
 		});
 		updateGameState();
 	});
   
-	socket.on("ready", function(socket){
-		var indexOfUser = getPlayerIndexBySocket(socket);
+	socket.on("ready", function(){
+		var indexOfPlayer = getPlayerIndexBySocket(socket);
 		if(!players[indexOfPlayer].ready){
 			players[indexOfPlayer].ready = true;
 			ready+=1;
 			if(readyToPlay()){
+				gameMode = 1;
 				dealDeck();
 				updateGameState();
 			}
 		}
 	});
   
-	socket.on("trade", function(socket, cards){
+	socket.on("trade", function(cards){
 		var indexOfUser = getPlayerIndexBySocket(socket);
 		var valid = validTradeOffer(indexOfUser, cards);
 		//io.emit("validTrade", valid);
 		updateGameState();
 	});
 
-	socket.on("acceptTrade", function(socket, msg){
+	socket.on("acceptTrade", function(msg){
 	var indexOfUser = getPlayerIndexBySocket(socket);
 		var valid = validTradeOffer(indexOfUser, msg.cards);
 		if (valid){
-			acceptTrade(getPlayerIndexByName(msg.player1), indexOfUser, msg.cards); //cards here belong to player 2
+			acceptTrade(msg.offeredPlayerIndex, indexOfUser, msg.cards); //cards here belong to player 2
 		}
 		updateGameState();
 	});
 
-	socket.on("corner", function(socket){
+	socket.on("corner", function(){
 		var game = false;
 		var playerIndex = getPlayerIndexBySocket(socket); 
 		var round = checkForRoundWin(playerIndex);
-		trades = [[],[],[],[],[],[],[],[]];
 		if (playerIndex == -1) return; //whoever clicked wasn't a player
 		if (round){
+			trades = [[],[],[],[],[],[],[],[]];
 			players[playerIndex].score += hands[playerIndex][0].points; //increment their score based on their first card
 			game = checkForGameWin(playerIndex); //check to see if the game is over
 			if (game){
@@ -305,10 +319,13 @@ io.on("connect", function(socket) {
 					if (i==playerIndex) players[i].wins+=1;
 					else players[i].losses+=1;
 					players[i].ready = false;
+					players[i].score = 0;
 				}
 				gameMode = 0;
-				readyToPlay = 0;
+				ready = 0;
+				hands = [];
 				updateScores(db);
+				updateGameState();
 				io.emit("gameWin", players[playerIndex].name); //msg is who won
 			}
 			else{
