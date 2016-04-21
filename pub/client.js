@@ -1,3 +1,9 @@
+/*
+Tracy Clark
+Ben Slater
+CS 365 
+Group Project: Pit
+*/
 socket = io();
 var user;
 var hand = [];
@@ -35,23 +41,22 @@ function find(array, val){
 
 
 function startUp(){
-  
-  
+
 	socket.on("gameWin", function(msg){ //server sends string: name of winner
 		alert(msg +" has won the game."); //display who won
 	});
-  
+
 	socket.on("roundWin", function(msg){ //server sends string: name of round winner
 		alert(msg + " has won the round.");
 	});
-  
+
 	socket.on("updateGameState", function(gameState){ //server send gamestate object
 		updateGameState(gameState);
 	});
-  
+
 	socket.on("loginValidation", function(msg){  //server returns boolean - success
 		if(msg){ //this should only happen on a valid login
-			$("#loginScreen").hide(); //may need to hide individual elements if this doesn't work
+			$("#loginScreen").hide(); 
 			$("#rules").hide();
 			$(".userTable").show();
 			$("#ready").show();
@@ -63,8 +68,8 @@ function startUp(){
 	socket.on("gameOver", function(){
 		alert("Someone left the game during play. Click ready to restart the game.")
 	});
-  
-  	function login(message){
+
+	function login(message){
 		user = $("#username").val();
 		var userCredentials = {
 			username: user,
@@ -77,27 +82,26 @@ function startUp(){
 	}
 	$("#loginButton").click(function(){login("login");}); 
 	$("#createButton").click(function(){login("create");});
-  
-	//need to create an array of card indexes that they want to trade as a global, clicking trade will send it to the server
-  [0,1,2,3,4,5,6,7,8].forEach(function(i){
-    $("#cell"+i).click(function(){
-      if(selectedCards.indexOf(i) == -1){ 
-        highlightCard("#cell"+i); 
-        selectedCards.push(i);
-      }
-      else{
-        unhighlightCard("#cell"+i);
-        selectedCards.splice(selectedCards.indexOf(i), 1);
-      }
-    });
-  });
+
+	[0,1,2,3,4,5,6,7,8].forEach(function(i){
+		$("#cell"+i).click(function(){
+			if(selectedCards.indexOf(i) == -1){ 
+				highlightCard("#cell"+i); 
+				selectedCards.push(i);
+			}
+			else{
+				unhighlightCard("#cell"+i);
+				selectedCards.splice(selectedCards.indexOf(i), 1);
+			}
+		});
+	});
 
 	$("#trade").click(function(){
 		socket.emit("trade", selectedCards);
 		selectedCards = [];
-    	unhighlightCard(".card");
+		unhighlightCard(".card");
 	});
-  
+
 	$("#corner").click(function(){
 		socket.emit("corner"); 
 	});
@@ -107,19 +111,18 @@ function startUp(){
 	});
 
 	function acceptTrade(index){
-    //var selectedUserName = $("player"+index).html();
-    socket.emit("acceptTrade", {offeredPlayerIndex:index, cards:selectedCards} );
-    selectedCards = [];
-    unhighlightCard(".card");
-  }
-  
-  [0,1,2,3,4,5,6,7].forEach(function(i){
-    $("#trade"+i).click(function(){acceptTrade(i);}); //when the click happens the anonymous function runs and calls acceptTrade
-  });
+		socket.emit("acceptTrade", {offeredPlayerIndex:index, cards:selectedCards} );
+		selectedCards = [];
+		unhighlightCard(".card");
+	}
+
+[0,1,2,3,4,5,6,7].forEach(function(i){
+$("#trade"+i).click(function(){acceptTrade(i);}); //when the click happens the anonymous function runs and calls acceptTrade
+});
 }
 
 function updateGameState(gameState){
-	console.log(updateGameState);
+	console.log(gameState);
 	if (gameState.gameMode==1){
 		$("#trade").show();
 		$("#playerHand").show();

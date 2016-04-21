@@ -1,3 +1,9 @@
+/*
+Tracy Clark
+Ben Slater
+CS 365 
+Group Project: Pit
+*/
 var mongoClient = require("mongodb").MongoClient;
 var ObjectID = require("mongodb").ObjectID;
 var express = require("express");
@@ -11,7 +17,7 @@ var io = socketIo(server);
 app.use(express.static("pub"));
 
 var db;
-var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game, 2 is game over
+var gameMode = 0; // gameMode 0 is waiting to start, 1 is in game, 2 is game over 
 var ready = 0; //increment on ready message, check for gameReady status
 var players = [];
 var hands = [];
@@ -98,6 +104,7 @@ function checkForRoundWin(playerIndex){
 function checkForGameWin(playerIndex){
 	if (gameMode==1){
 		if (players[playerIndex].score>=500){
+		//if (players[playerIndex].score>=50){ test/demo quickplay
 			return true;
 		}
 		return false;
@@ -126,8 +133,7 @@ function createUser(db, userName, passWord, callback){ //we don't have to check 
 function updateScores(db){ 
 	var collection = db.collection("users");
 	for (var i = 0; i<players.length; i++){
-			var player = "\""+players[i].name+"\"";
-			collection.update({username: player}, {$set: { wins: players[i].wins, losses: players[i].losses}});
+			collection.update({username: players[i].name}, {$set: { wins: players[i].wins, losses: players[i].losses}});
 	}
 }
 
@@ -144,7 +150,8 @@ function validTradeOffer(playerIndex, cardIndexes){
 function acceptTrade (offeredPlayerIndex, acceptedPlayerIndex, acceptedCards){ 
 	//if players are in accept trade then BOTH of them have been through validTrade()
 	var offeredCards = trades[offeredPlayerIndex];
-	if(offeredCards.length <= acceptedCards.length){ //if a person accepts an offer they have to have equal or more cards than the offer
+	if(offeredCards.length <= acceptedCards.length){ 
+	//if a person accepts an offer they have to have equal or more cards than the offer
 	//you can choose to trade less cards than you are offering, you can't make someone else do it
 	//someone can accept a trade for less cards than they are offering, it just cuts some of the cards off
 		trade(offeredPlayerIndex, offeredCards, acceptedPlayerIndex, acceptedCards);
@@ -208,10 +215,8 @@ io.on("connect", function(socket) {
 			indexOfUser = getPlayerIndexBySocket(socket);
 			if (indexOfUser!=-1){
 				console.log("A player left.");
+				if(players[indexOfUser].ready) ready--;
 				players.splice(indexOfUser, 1);
-				if (gameMode==0 || gameMode==2){
-					if(players[indexOfUser].ready) ready--;
-				}
 				if (gameMode==1){
 					trades = [[],[],[],[],[],[],[],[]];
 					hands = [];
@@ -292,7 +297,6 @@ io.on("connect", function(socket) {
 	socket.on("trade", function(cards){
 		var indexOfUser = getPlayerIndexBySocket(socket);
 		var valid = validTradeOffer(indexOfUser, cards);
-		//io.emit("validTrade", valid);
 		updateGameState();
 	});
 
@@ -308,20 +312,20 @@ io.on("connect", function(socket) {
 	socket.on("corner", function(){
 		var game = false;
 		var playerIndex = getPlayerIndexBySocket(socket); 
-		var round = checkForRoundWin(playerIndex);
 		if (playerIndex == -1) return; //whoever clicked wasn't a player
+		var round = checkForRoundWin(playerIndex);
 		if (round){
 			trades = [[],[],[],[],[],[],[],[]];
 			players[playerIndex].score += hands[playerIndex][0].points; //increment their score based on their first card
 			game = checkForGameWin(playerIndex); //check to see if the game is over
 			if (game){
-				for(var i; i<players.length; i++){
-					if (i==playerIndex) players[i].wins+=1;
-					else players[i].losses+=1;
+				for(var i = 0; i<players.length; i++){
+					if (i==playerIndex) players[i].wins++;
+					else players[i].losses++;
 					players[i].ready = false;
 					players[i].score = 0;
 				}
-				gameMode = 0;
+				gameMode = 2;
 				ready = 0;
 				hands = [];
 				updateScores(db);

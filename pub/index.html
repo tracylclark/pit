@@ -1,4 +1,9 @@
-
+<!-- 
+Tracy Clark
+Ben Slater
+CS 365 
+Group Project: Pit 
+-->
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -15,20 +20,18 @@
 			<h2> Pit Rules </h1>
 			<h3> OBJECT </h3>
 			<p> Be the first player to score a total of 500 points to win. This usually takes several hands of play. 
-        At the start of the game, you become a trader, as if you’re at the commodity exchange, trying to “corner” 
-        the market on one of the following  commodities: doge, partyVan, technoViking, wat, rickRoll, sovietBear, 
-        internetz, or nyanCat. You “corner the market” when you have in your hand all 9 cards of the same commodity.</p>
-			<h3> PLAY </h3>
-			<p> At the start of the game, begin to trade by taking selecting one to four cards of the same commodity. 
-        They will be of a commodity you do NOT wish to corner. Click offer to offer the trade to the other players. 
-        Any other player with the same amount of cards to trade (or more) may click accept to accept your offer. 
-        If a player is offering less cards to trade, you may click accept and your bid will be adjusted down to match 
-        theirs. To change an offered bid you can deselect cards and then click offer again, this will replace your 
-        previous trade offer.
-			<br><br>
-			Continue trading until one player gets 9 cards of the same suit. If you get there first, select the 
-        commodity you've cornered from the drop-down menu and then click corner. Your points scored for that 
-        commodity will be added to your total score. The next hand is then dealt. </p>
+				At the start of the game, you become a trader, as if you’re at the commodity exchange, trying to “corner” 
+				the market on one of the following  commodities: doge, partyVan, technoViking, wat, rickRoll, sovietBear, 
+				internetz, or nyanCat. You “corner the market” when you have in your hand all 9 cards of the same commodity.</p>
+				<h3> PLAY </h3>
+				<p> At the start of the game, signal your readiness to begin play by clicking ready. Once at least half the players have agreed to start, game play will begin. </p>
+				<br><br>
+				<p>You can begin to trade by clicking on one to four cards of the same commodity. They will be of a commodity you do NOT wish to corner. Click "Trade" to offer the trade to the other players. Any other player with the same amount of cards to trade (or more) may click "Accept" next to your user statistics to accept your offer. If a player is offering less cards to trade, you may reselect the cards you wish to trade and click Accept to trade with them. To change an offered bid you can deselect cards and then click "Trade" again, this will replace your previous trade offer. </p>
+				<br><br>
+				<p>Continue trading until one player gets 9 cards of the same suit and clicks on "Corner". If you get there first, click corner to win the round. Your points scored for that commodity will be added to your total score. The next hand is then dealt until a player reaches 500 points to win the game. </p>
+				<br><br>
+				Remember, whoever is the first to click a button wins, whether it's a trade or corner!
+			</p>
 		</div>
 		<div id="loginScreen" class="section sideFloat">
 			<input type="text" placeholder="username" name="username" id="username"><br>
@@ -37,94 +40,94 @@
 			<button type="button" id="createButton">Create Account</button>
 		</div>
 		<button type = "button" id="corner">Corner</button>
-        <div class="table userTable">
-    			<div class="row" id="header">
-    				<div class="cell">Player</div>
-                    <div class="cell">Score</div>
-                    <div class="cell">Wins</div>
-                    <div class="cell">Losses</div>
-                    <div class="cell">Accept Trade</div>
-                    <div class="cell"># of cards</div>
-    			</div>
-            <div class="row" id="row0">
-    			<div class="cell" id="player0"></div>
-                <div class="cell" id="score0"></div>
-                <div class="cell" id="win0"></div>
-                <div class="cell" id="loss0"></div>
-                <div class="cell"><button  id="trade0">Accept</button></div>
-                <div class="cell" id="numberOfCards0"></div>
-    		</div>
-            <div class="row" id="row1">
-    			<div class="cell" id="player1"></div>
-                <div class="cell" id="score1"></div>
-                <div class="cell" id="win1"></div>
-                <div class="cell" id="loss1"></div>
-                <div class="cell"><button  id="trade1">Accept</button></div>
-                <div class="cell" id="numberOfCards1"></div>
-    		</div>
-            <div class="row" id="row2">
-    			<div class="cell" id="player2"></div>
-                <div class="cell" id="score2"></div>
-                <div class="cell" id="win2"></div>
-                <div class="cell" id="loss2"></div>
-                <div class="cell"><button  id="trade2">Accept</button></div>
-                <div class="cell" id="numberOfCards2"></div>
-    		</div>
-            <div class="row" id="row3">
-    			<div class="cell" id="player3"></div>
-                <div class="cell" id="score3"></div>
-                <div class="cell" id="win3"></div>
-                <div class="cell" id="loss3"></div>
-                <div class="cell"><button  id="trade3">Accept</button></div>
-                <div class="cell" id="numberOfCards3"></div>
-    		</div>
-            <div class="row" id="row4">
-    			<div class="cell" id="player4"></div>
-                <div class="cell" id="score4"></div>
-                <div class="cell" id="win4"></div>
-                <div class="cell" id="loss4"></div>
-                <div class="cell"><button  id="trade4">Accept</button></div>
-                <div class="cell" id="numberOfCards4"></div>
-    		</div>
-            <div class="row" id="row5">
-    			<div class="cell" id="player5"></div>
-                <div class="cell" id="score5"></div>
-                <div class="cell" id="win5"></div>
-                <div class="cell" id="loss5"></div>
-                <div class="cell"><button  id="trade5">Accept</button></div>
-                <div class="cell" id="numberOfCards5"></div>
-    		</div>
-            <div class="row" id="row6">
-    			<div class="cell" id="player6"></div>
-                <div class="cell" id="score6"></div>
-                <div class="cell" id="win6"></div>
-                <div class="cell" id="loss6"></div>
-                <div class="cell"><button  id="trade6">Accept</button></div>
-                <div class="cell" id="numberOfCards6"></div>
-    		</div>
-            <div class="row" id="row7">
-    			<div class="cell" id="player7"></div>
-                <div class="cell" id="score7"></div>
-                <div class="cell" id="win7"></div>
-                <div class="cell" id="loss7"></div>
-                <div class="cell"><button  id="trade7">Accept</button></div>
-                <div class="cell" id="numberOfCards7"></div>
-    		</div>
-    	</div>
-        <div class="table" id="playerHand">
-            <div class="row">
-                <div class="cell card" id="cell0"> </div>
-                <div class="cell card" id="cell1"> </div>
-                <div class="cell card" id="cell2"> </div>
-                <div class="cell card" id="cell3"> </div>
-                <div class="cell card" id="cell4"> </div>
-                <div class="cell card" id="cell5"> </div>
-                <div class="cell card" id="cell6"> </div>
-                <div class="cell card" id="cell7"> </div>
-                <div class="cell card" id="cell8"> </div>
-            </div>
-        </div>
-    <button type="button" id="ready">Ready</button>
+		<div class="table userTable">
+				<div class="row" id="header">
+					<div class="cell">Player</div>
+					<div class="cell">Score</div>
+					<div class="cell">Wins</div>
+					<div class="cell">Losses</div>
+					<div class="cell">Accept Trade</div>
+					<div class="cell"># of cards</div>
+				</div>
+			<div class="row" id="row0">
+				<div class="cell" id="player0"></div>
+				<div class="cell" id="score0"></div>
+				<div class="cell" id="win0"></div>
+				<div class="cell" id="loss0"></div>
+				<div class="cell"><button  id="trade0">Accept</button></div>
+				<div class="cell" id="numberOfCards0"></div>
+			</div>
+			<div class="row" id="row1">
+				<div class="cell" id="player1"></div>
+				<div class="cell" id="score1"></div>
+				<div class="cell" id="win1"></div>
+				<div class="cell" id="loss1"></div>
+				<div class="cell"><button  id="trade1">Accept</button></div>
+				<div class="cell" id="numberOfCards1"></div>
+			</div>
+			<div class="row" id="row2">
+				<div class="cell" id="player2"></div>
+				<div class="cell" id="score2"></div>
+				<div class="cell" id="win2"></div>
+				<div class="cell" id="loss2"></div>
+				<div class="cell"><button  id="trade2">Accept</button></div>
+				<div class="cell" id="numberOfCards2"></div>
+			</div>
+			<div class="row" id="row3">
+				<div class="cell" id="player3"></div>
+				<div class="cell" id="score3"></div>
+				<div class="cell" id="win3"></div>
+				<div class="cell" id="loss3"></div>
+				<div class="cell"><button  id="trade3">Accept</button></div>
+				<div class="cell" id="numberOfCards3"></div>
+			</div>
+			<div class="row" id="row4">
+				<div class="cell" id="player4"></div>
+				<div class="cell" id="score4"></div>
+				<div class="cell" id="win4"></div>
+				<div class="cell" id="loss4"></div>
+				<div class="cell"><button  id="trade4">Accept</button></div>
+				<div class="cell" id="numberOfCards4"></div>
+			</div>
+			<div class="row" id="row5">
+				<div class="cell" id="player5"></div>
+				<div class="cell" id="score5"></div>
+				<div class="cell" id="win5"></div>
+				<div class="cell" id="loss5"></div>
+				<div class="cell"><button  id="trade5">Accept</button></div>
+				<div class="cell" id="numberOfCards5"></div>
+			</div>
+			<div class="row" id="row6">
+				<div class="cell" id="player6"></div>
+				<div class="cell" id="score6"></div>
+				<div class="cell" id="win6"></div>
+				<div class="cell" id="loss6"></div>
+				<div class="cell"><button  id="trade6">Accept</button></div>
+				<div class="cell" id="numberOfCards6"></div>
+			</div>
+			<div class="row" id="row7">
+				<div class="cell" id="player7"></div>
+				<div class="cell" id="score7"></div>
+				<div class="cell" id="win7"></div>
+				<div class="cell" id="loss7"></div>
+				<div class="cell"><button  id="trade7">Accept</button></div>
+				<div class="cell" id="numberOfCards7"></div>
+			</div>
+		</div>
+		<div class="table" id="playerHand">
+			<div class="row">
+				<div class="cell card" id="cell0"> </div>
+				<div class="cell card" id="cell1"> </div>
+				<div class="cell card" id="cell2"> </div>
+				<div class="cell card" id="cell3"> </div>
+				<div class="cell card" id="cell4"> </div>
+				<div class="cell card" id="cell5"> </div>
+				<div class="cell card" id="cell6"> </div>
+				<div class="cell card" id="cell7"> </div>
+				<div class="cell card" id="cell8"> </div>
+			</div>
+		</div>
+	<button type="button" id="ready">Ready</button>
 		<button type="button" id="trade">Trade</button>
 	</body>
 </html>

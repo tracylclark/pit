@@ -1,4 +1,9 @@
-/*pit*/
+/*
+Tracy Clark
+Ben Slater
+CS 365 
+Group Project: Pit
+*/
 #loginScreen{
 	margin-left: 70%;
 	margin-right: 0%;
@@ -6,7 +11,7 @@
 
 .sideFloat {
 	float: left;
-	width: 28%;
+	width: 32%;
 	margin: 0;
 	padding: 0;
 	text-align: center;
@@ -40,9 +45,7 @@
 	float:right;
 	margin-right: 20px;
 }
-/*#acceptTrade{
-	display:none;
-}*/
+
 .table {
 	display: table;
 }
@@ -76,8 +79,6 @@
 }
 .userTable{
 	display:none;
-	/*border-collapse: separate;
-	border-spacing: 5px;*/
 	text-align: center;
 	float:left;
 }
